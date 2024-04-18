@@ -1,0 +1,328 @@
+# add XP bar for level
+
+function serverName() :: string:
+	return "&f&lEgg&6&lDuels"
+
+function getVer() :: string:
+	return "v1.0"
+
+function spawn(p: player, onjoin: boolean = false):
+	if {game::%{_p}%} is "AFK":
+		{_onjoin} is false # If they force left the match, dont run this!
+		sendError({_p}, "You can't go to spawn while AFK!")
+		exit
+	exitMatch({_p})
+	delete {game::%{_p}%::*} and {temp::%{_p}%::*}
+	set {game::%{_p}%} to "Spawn"
+	updateTablistName({_p})
+	set gamemode of {_p} to adventure
+	set the health of {_p} to 20
+	set the food level of {_p} to 10
+	extinguish {_p}
+	clear all potion effects of {_p}
+	clear {_p}'s inventory
+	teleport {_p} to location(0.5, 60, 0.5, "Game")
+	play 2 cloud 2 blocks above {_p} to all players
+	refreshScoreboard()
+	console command "/title %{_p}% times 0 60 5" # Sets default title timings
+	send actionbar " " to {_p} # Clears their actionbar
+	wait 15 ticks if {_onjoin} is true
+	loop 2 times:
+		send title "&6Welcome to &6&lEggDuels!" with subtitle "" to {_p}
+		play sound "block.note_block.banjo" with pitch 1.0 to {_p}
+		wait 3 ticks
+		exit if {game::%{_p}%} is not "Spawn"
+		send title "&cWelcome to &c&lEggDuels!" to {_p}
+		play sound "block.note_block.banjo" with pitch 1.2 to {_p}
+		wait 3 ticks
+		exit if {game::%{_p}%} is not "Spawn"
+	send title "&6Welcome to &6&lEggDuels!" to {_p}
+	play sound "block.note_block.banjo" with pitch 1.0 to {_p}
+	wait 15 ticks
+	exit if {game::%{_p}%} is not "Spawn"
+	send title "&cWelcome to &c&lEggDuels!" to {_p}
+	send subtitle "&cᴄᴜѕᴛᴏᴍ ᴅᴜᴇʟ-ᴏʀɪᴇɴᴛᴇᴅ ᴘᴠᴘ!" to {_p}
+	play sound "block.note_block.banjo" with pitch 0.7 to {_p}
+	wait 7 ticks
+	exit if {game::%{_p}%} is not "Spawn"
+	send title "&6Welcome to &6&lEggDuels!" to {_p}
+	send subtitle "&6&lᴄᴜѕᴛᴏᴍ ᴅᴜᴇʟ-ᴏʀɪᴇɴᴛᴇᴅ ᴘᴠᴘ!" to {_p}
+	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+	wait 7 ticks
+	exit if {game::%{_p}%} is not "Spawn"
+	send title "&cWelcome to &c&lEggDuels!" to {_p}
+	send subtitle "&cᴄᴜѕᴛᴏᴍ ᴅᴜᴇʟ-ᴏʀɪᴇɴᴛᴇᴅ ᴘᴠᴘ!" to {_p}
+	play sound "block.note_block.banjo" with pitch 0.6 to {_p}
+
+command /spawn [<string>]:
+	cooldown: 10 seconds
+	cooldown message: &cPlease wait before using this command again!
+	trigger:
+		if {match::%{game::%player%::id}%::status} is "Running":
+			if arg-1 is not "CONFIRM":
+				sendError(player, "It is considered bad sportsmanship to leave a duel mid-game. It is encouraged to finish the round normally. Add 'CONFIRM' to the end of the command to force-leave the match.")
+				cancel command cooldown
+				exit
+			else:
+				send title "&c&lForcibly left match" with subtitle "&c&lʀᴇᴘᴇᴀᴛᴇᴅʟʏ ᴅᴏɪɴɢ ѕᴏ ɪѕ ᴘᴜɴɪѕʜᴀʙʟᴇ."
+				spawn(player, true)
+				exit
+		else if arg-1 is "CONFIRM": # Makes sure the game is actually running
+			sendError(player, "You can only force-leave a match if you're in a match!")
+			cancel command cooldown
+			exit
+		spawn(player)
+
+on food bar change:
+	cancel event if {game::%player%} is "Spawn" or "Queue"
+
+on damage:
+	cancel event if {game::%victim%} is "Spawn" or "Queue"
+
+on right click:	# Fixes button glitch :)
+	exit if gamemode of player is creative
+	cancel event if {game::%player%} is "Spawn" or "Queue"
+
+on pressure plate: # Fixes annoying spawn pressure plate noise
+	cancel event
+	
+on quit:
+	if {rank::%player%} is set:
+		set quit message to "&c&l - &8| %{rank::%player%::prefix}% &f%player% &7ʜᴀѕ ʟᴇꜰᴛ ᴛʜᴇ ѕᴇʀᴠᴇʀ!"
+	else: # Unranked players get a different leave message
+		set quit message to "&c&l - &8| &7&lPlayer &7%player% &7ʜᴀѕ ʟᴇꜰᴛ ᴛʜᴇ ѕᴇʀᴠᴇʀ!"
+	
+	updateTabList()
+	remove player from all bossbars
+	refreshScoreboard()
+	show 3 smoke 1 block above player to all players
+	kill player
+	exitMatch(player)
+	clear all potion effects of player
+
+function updateTabList():
+	wait 1 tick
+	loop all players: # Work-around for setting all player's tablist
+		set loop-player's tab list footer to "&fᴘʟᴀʏᴇʀѕ ᴏɴʟɪɴᴇ: &7%number of all players%/%max players% &f| &7/help%newline%&3&oᴄʀᴇᴀᴛᴇᴅ ʙʏ ᴇɢɢ ᴅᴇᴠᴇʟᴏᴘᴍᴇɴᴛ &9(/discord)"
+
+function updateBossbar(text: string, color: color):
+	remove all players from {server::bar}
+	delete bossbar with id "bossbar"
+	set {server::bar} to bossbar with id "bossbar" with title {_text} with color {_color} with style segmented 20
+	set bar progress of {server::bar} to 100
+	add all players to {server::bar}
+		
+command /rank [<player>] [<text>]:
+	permission: op
+	trigger:
+		if arg-1 or arg-2 is not set:
+			message "&6&lEggDuels Ranks:"
+			message "&cAdmin"
+			message "&5Moderator"
+			message "&aHelper"
+			message "&2Staff"
+			message "&7Player"
+			message ""
+			message "&6Usage: /rank <player> <rank>"
+			message ""
+			exit
+		if arg-1 is not set:
+			message "&4You need to specify which player to give the rank to!"
+			message ""
+			exit
+		if arg-2 is not set:
+			message "&4You need to specify which rank you want to give the player!"
+			message ""
+			exit
+		delete {rank::%arg-2%::isStaff} # Delete staff privilages if they get demoted
+		if arg-2 is "admin": # Highest tier (ADMIN PRIVILAGES)
+			set {rank::%arg-1%} to "Admin"
+			set {rank::%arg-1%::prefix} to "&c&lAdmin"
+			set {rank::%arg-1%::isStaff} to true
+			
+		else if arg-2 is "moderator": # 2nd highest tier (FRIENDS & HIGH RANKING MODS)
+			set {rank::%arg-1%} to "Moderator"
+			set {rank::%arg-1%::prefix} to "&5&lModerator"
+			set {rank::%arg-1%::isStaff} to true
+			
+		else if arg-2 is "helper": # 3rd highest tier (JUST NORMAL STAFF)
+			set {rank::%arg-1%} to "Helper"
+			set {rank::%arg-1%::prefix} to "&a&lHelper"
+			set {rank::%arg-1%::isStaff} to true
+			
+		else if arg-2 is "staff": # 4th highest tier
+			set {rank::%arg-1%} to "Staff"
+			set {rank::%arg-1%::prefix} to "&2&lStaff"
+			set {rank::%arg-1%::isStaff} to true
+						
+		else if arg-2 is "player": # default, 1, player
+			delete {rank::%arg-1%}
+			delete {rank::%arg-1%::prefix}
+		
+		else:
+			message "&4That rank doesn't exist!"
+			message ""
+			exit
+		send "&2Successfully Set!" to player
+		updateTablistName(arg-1)
+
+on chat:
+	# Set rank colors
+	if {rank::%player%::isStaff} is true:
+		set {_color} to "&f"
+	else:
+		set {_color} to "&7"
+		
+	# Create ping
+	loop all players:
+		message contains loop-player's name
+		play sound "block.note_block.chime" with pitch 1.7 to loop-player if {settings::%loop-player%::pingSound} is not false
+		if message contains "@":
+			message "%nl% &6&lʜᴇʟᴘꜰᴜʟ ᴛɪᴘ! &fYou don't need to put an '@' before a player's name. Simply type their name to ping them!%nl%"
+			replace all "@" in message with ""
+
+		replace every loop-player's name with "&9@%loop-player%%{_color}%" in message
+		send "&f%loop-player% &7is AFK and may not reply to your ping." to player if {game::%loop-player%} is "AFK"
+	
+	if message contains "discord":
+		replace all "discord" in message with "&9Discord%{_color}%"
+		set message to "%message%%nl%%nl%&9&lDISCORD >> &fᴊᴏɪɴ ᴏᴜʀ ᴅɪѕᴄᴏʀᴅ ᴄᴏᴍᴍᴜɴɪᴛʏ! &3/discord"
+
+			
+	# Handle chat recipients and prefix
+	if {rank::%player%} is not set:
+		set {_rank} to "&7&lPlayer"
+	else:
+		set {_rank} to {rank::%player%::prefix}
+	
+	# Default chat format
+	set chat format to "&7%{_rank}% &f%player's name% &8(%{game::%player%}%): %{_color}%[message]"
+			
+function updateTablistName(p: player):
+	if {rank::%{_p}%} is set:
+		set {_rank} to {rank::%{_p}%::prefix}
+	else:
+		set {_rank} to "&7&lPlayer"
+	set {_p}'s tablist name to "&7%{_rank}% &r%{_p}'s name% &8(%{game::%{_p}%}%)"
+
+function refreshTabPrefixes():
+	loop all players:
+		updateTablistName(loop-player)
+		
+on skript stop:
+	delete {temp::*}
+	delete {server::bar}
+	delete {server::barState}
+	delete {match::*}
+	
+on skript start:
+	set {temp::serverFirstStart} to true
+	set {motd} to "&c&l(!) EggDuels is undergoing maintenance!" if {motd} is not set
+	updateBossbar("Welcome to EggDuels!", white)
+	set {temp::barProgress} to 100
+	createBounds() # Sets up all arena bounds
+	resetSigns() # Resets sign text for all signs
+
+every 2 ticks:
+	if bar progress of {server::bar} is 0:
+		add 1 to {server::barState}
+		if {server::barState} is 1:
+			set {_barMsg} to "&3ᴊᴏɪɴ ᴏᴜʀ ᴅɪѕᴄᴏʀᴅ ѕᴇʀᴠᴇʀ ꜰᴏʀ ᴇᴠᴇɴᴛѕ ᴀɴᴅ ᴜᴘᴅᴀᴛᴇѕ! &9&l/discord"
+			set {_color} to blue
+		else if {server::barState} is 2:
+			set {_barMsg} to "&aᴍᴀᴋᴇ ѕᴜʀᴇ ʏᴏᴜ'ʀᴇ ᴘʟᴀʏɪɴɢ ꜰᴀɪʀʟʏ! &2&nɴᴏ ᴛᴏxɪᴄɪᴛʏ ᴀʟʟᴏᴡᴇᴅ!&2&l /rules"
+			set {_color} to green
+		else if {server::barState} is 3:
+			set {_barMsg} to "&6ᴜᴘᴅᴀᴛᴇ 1.0 ɪѕ ᴏᴜᴛ! ᴄʜᴇᴄᴋ ᴏᴜᴛ ᴏᴜʀ &nɴᴇᴡ&6 2ᴠ2 ɢᴀᴍᴇᴍᴏᴅᴇ!"
+			set {_color} to yellow
+		else if {server::barState} is 4:
+			set {_barMsg} to "&cᴀᴅᴠᴇʀᴛɪѕᴇ ᴛʜɪѕ ѕᴇʀᴠᴇʀ ᴛᴏ ɢᴇᴛ ᴍᴏʀᴇ ᴘʟᴀʏᴇʀѕ! &l/ad"
+			set {_color} to red
+		else if {server::barState} is 5:
+			set {_barMsg} to "&dᴛᴜʀɴ ᴏɴ ᴍɪɴᴇᴄʀᴀꜰᴛ ᴇꜰꜰᴇᴄᴛ ᴘᴀʀᴛɪᴄʟᴇѕ ᴛᴏ ѕᴇᴇ ɢᴜɴ ᴛʀᴀᴄɪɴɢ!"
+			set {_color} to pink
+			set {server::barState} to 0 # Reset it!
+		updateBossbar({_barMsg}, {_color})
+		set {temp::barProgress} to 100
+		wait 2 ticks
+	set bar progress of {server::bar} to {temp::barProgress}
+	remove 1.5 from {temp::barProgress}
+
+on player move:
+	{match::%{game::%player%::id}%::frozen} is set
+	gamemode of player is not spectator
+	#distance between past event-location and event-location is not 0.1 # Exactly how much is force-moved, player didn't do this
+	cancel event
+
+#on jump:
+#	{match::%{game::%player%::id}%::frozen} is set
+#	gamemode of player is not spectator
+#	cancel event
+		
+on inventory click: # Prevent taking off armor
+	clicked slot is between 36 and 39
+	cancel event
+
+function sendError(p: player, msg: string, isAlt: boolean = false):
+	set {_msg} to "&c%{_msg}%"
+	message "&c&l (!) %formatted {_msg}%" to {_p}
+	errorSound({_p}) if {_isAlt} is false
+	altErrorSound({_p}) if {_isAlt} is true
+	
+function sendActionbarError(p: player, msg: string):
+	send action bar "&c&l (!) &c%{_msg}%" to {_p}
+	errorSound({_p})
+	
+function sendInfo(p: player, msg: string):
+	message " &9&l(INFO) &f%{_msg}%" to {_p}
+
+on block break:
+	cancel event if gamemode of player is not creative 
+
+on block place:
+	cancel event if gamemode of player is not creative 
+	
+on skript start:
+	wait 6 hours
+	broadcast "&c&lʀᴇѕᴛᴀʀᴛ >> &fThe planned daily restart will commence in 30 minutes."
+	wait 20 minutes
+	broadcast "&c&lʀᴇѕᴛᴀʀᴛ >> &fThe planned daily restart will commence in 10 minutes."
+	wait 8 minutes
+	broadcast "&c&lʀᴇѕᴛᴀʀᴛ >> &fThe planned daily restart will commence in 2 minutes."
+	serverRestart()
+
+command planRestart:
+	permission: op
+	trigger:
+		serverRestart()
+
+function serverRestart():
+	set {_countdown} to 10
+	broadcast "&c&l%nl% ᴘʟᴀɴɴᴇᴅ ѕᴇʀᴠᴇʀ ʀᴇѕᴛᴀʀᴛ%nl% &fThe server will restart in 10 seconds! You can rejoin after the restart.%nl%"
+	loop {_countdown} times:
+		if {_countdown} is 1:
+			set {_s} to ""
+		else:
+			set {_s} to "ѕ"
+		send title "&c&lServer Restart" with subtitle "&fʀᴇѕᴛᴀʀᴛɪɴɢ ɪɴ %{_countdown}% ѕᴇᴄᴏɴᴅ%{_s}%..." to all players
+		wait 1 second
+		remove 1 from {_countdown}
+	send title "&c&lRESTARTING..." with subtitle "&cᴘʟᴇᴀѕᴇ ʀᴇᴊᴏɪɴ!" to all players
+	wait 10 ticks
+	restart server
+	
+command reloadscripts:
+	trigger:
+		broadcast "%nl% &c&lGAME RELOADING%nl% &fGame scripts are being reloaded soon to fix bugs or add features. Changes will apply immediately.%nl% &f&lYou will experience some lag.%nl%"
+		wait 2 seconds
+		send title "&6&lGAME RELOADING" with subtitle "&fʏᴏᴜ ᴡɪʟʟ ᴇxᴘᴇʀɪᴇɴᴄᴇ ʟᴀɢ!" to all players for 20 seconds with fadein 0 ticks and fadeout 10 ticks
+		wait 1 tick # This is here so players will be able to see the title
+		set {_time} to now
+		console command "sk reload scripts" # reloads ALL scripts
+		send title "&3&lReload Finished!" with subtitle "&fʏᴏᴜ ᴍᴀʏ ɴᴏᴡ ᴄᴏɴᴛɪɴᴜᴇ." to all players for 2 seconds with fadein 0 ticks and fadeout 10 ticks
+		broadcast "%nl% &fTotal time taken: &6%difference between {_time} and now%%nl%"
+		
+on server list ping:
+	set the motd to "&c&l🗡 %serverName()% &f&l>> &6Duel &for &cdie &fin thrilling gunfights! %nl%&f%colored {motd}%"
+	set the version string to "EggDuels"
+	set the hover list to all players

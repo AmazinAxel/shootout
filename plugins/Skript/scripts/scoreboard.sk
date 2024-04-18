@@ -1,0 +1,73 @@
+# This script handles the scoreboard for all players on EggDuels
+function refreshPlayerScoreboard(p: player):
+	toggle {_p}'s scoreboard on
+	clear scoreboard of {_p}
+	set title of {_p}'s scoreboard to "%serverName()% &7%getVer()%"
+	set line 15 of {_p}'s scoreboard to "" # 1 line dedicated to open space at top
+			
+	if {game::%{_p}%} is "Shootout1v1" or "Shootout2v2":
+		set line 14 of {_p}'s scoreboard to "&6&l %{game::%{_p}%}% Duel"
+
+		if {game::%{_p}%} is "Shootout1v1":
+			loop all players:
+				{game::%loop-player%::id} is {game::%{_p}%::id}
+				loop-player is not {_p}
+				set {_opponent} to loop-player
+			set line 13 of {_p}'s scoreboard to "&f  ᴏᴘᴘᴏɴᴇɴᴛ: &6%{_opponent}%"
+
+		else if {game::%{_p}%} is "Shootout2v2":
+			loop all players:
+				{game::%loop-player%::id} is {game::%{_p}%::id}
+				add loop-player to {_teammates::*} if {game::%loop-player%::team} is {game::%{_p}%::team}
+				add loop-player to {_opponents::*} if {game::%loop-player%::team} is not {game::%{_p}%::team}
+			
+			set line 13 of {_p}'s scoreboard to "&f  ᴏᴘᴘᴏɴᴇɴᴛ(ѕ): &6%{_opponents::*}%" if {_opponents::*} is set
+			set line 12 of {_p}'s scoreboard to "&f  ᴛᴇᴀᴍᴍᴀᴛᴇ(ѕ): &6%{_teammates::*}%" if {_teammates::*} is set
+	else if {game::%{_p}%} is "FFA":
+		set line 14 of {_p}'s scoreboard to "&6&l Shootout Duel Arena"
+		set line 13 of {_p}'s scoreboard to "&f  ꜰɪɢʜᴛ ᴏᴛʜᴇʀ ᴘʟᴀʏᴇʀѕ ɪɴ ᴀ"
+		set line 12 of {_p}'s scoreboard to "&f  ꜰʀᴇᴇ-ꜰᴏʀ-ᴀʟʟ ᴀʀᴇɴᴀ!"
+	else if {game::%{_p}%} is "AFK":
+		set line 14 of {_p}'s scoreboard to "&6&l AFK"
+		set line 13 of {_p}'s scoreboard to "&f  ʏᴏᴜ'ʟʟ ɢᴇᴛ ɴᴏᴛɪꜰɪᴇᴅ ᴡʜᴇɴ"
+		set line 12 of {_p}'s scoreboard to "&f  ᴘʟᴀʏᴇʀѕ ᴊᴏɪɴ. ᴜѕᴇ &6/afk"
+		set line 11 of {_p}'s scoreboard to "&f  ᴛᴏ ʀᴇᴛᴜʀɴ ᴛᴏ ѕᴘᴀᴡɴ."
+	else if {game::%{_p}%} is "Queue":
+		set line 14 of {_p}'s scoreboard to "&6&l Queue"
+		set line 13 of {_p}'s scoreboard to "&f  ᴘʟᴇᴀѕᴇ ᴡᴀɪᴛ ꜰᴏʀ ᴍᴏʀᴇ"
+		set line 12 of {_p}'s scoreboard to "&f  ᴘʟᴀʏᴇʀѕ ᴛᴏ ᴊᴏɪɴ!"
+	else if {game::%{_p}%} is "Spawn":
+		set line 14 of {_p}'s scoreboard to "&6&l Spawn"
+		set line 13 of {_p}'s scoreboard to "&f  ᴄʟɪᴄᴋ ᴀɴʏ ѕɪɢɴ ᴛᴏ"
+		set line 12 of {_p}'s scoreboard to "&f  ᴊᴏɪɴ ᴀ ᴅᴜᴇʟ"
+	
+	set line 11 of {_p}'s scoreboard to ""
+	set line 10 of {_p}'s scoreboard to "&6&l %player count% ᴏɴʟɪɴᴇ:"
+	set line 9 of {_p}'s scoreboard to "&6&l → %{temp::lobby}% &fᴀᴛ ѕᴘᴀᴡɴ" if {temp::lobby} is not 0
+	set line 8 of {_p}'s scoreboard to "&6&l → %{temp::ffaplayers}% &fᴘʟᴀʏɪɴɢ ꜰꜰᴀ" if {temp::ffaplayers} is not 0
+	set line 7 of {_p}'s scoreboard to "&6&l → %{temp::duelplayers}% &fɪɴ ᴀ ᴅᴜᴇʟ" if {temp::duelplayers} is not 0
+	set line 6 of {_p}'s scoreboard to "&6&l → %{temp::spectators}% &fѕᴘᴇᴄᴛᴀᴛɪɴɢ ᴀ ᴍᴀᴛᴄʜ" if {temp::spectators} is not 0
+
+	set line 5 of {_p}'s scoreboard to ""
+	set line 4 of {_p}'s scoreboard to "&c&l ʙᴇᴛᴀ ᴛᴇѕᴛ ѕᴇѕѕɪᴏɴ"
+	set line 3 of {_p}'s scoreboard to "&c&l → &fɢᴀᴍᴇ ѕᴜʙᴊᴇᴄᴛ ᴛᴏ ᴄʜᴀɴɢᴇ!"
+				
+	set line 2 of {_p}'s scoreboard to ""
+	set line 1 of {_p}'s scoreboard to " &9/discord   &r-  &a/rules  &r-   &6/help "
+						
+function refreshScoreboard():
+	wait 1 tick # Wait for player to join world before updating scoreboard
+	set {temp::lobby} and {temp::ffaplayers} and {temp::spectators} and {temp::duelplayers} to 0
+	loop all players:
+		if {game::%loop-player%} is "Spawn" or "Queue":
+			add 1 to {temp::lobby} 
+		else if {game::%loop-player%} is "FFA":
+			add 1 to {temp::ffaplayers}
+		else if {game::%loop-player%} is "Spectator":
+			add 1 to {temp::spectators}
+		else: # They're in a duel
+			{game::%loop-player%} is not "AFK"
+			add 1 to {temp::duelplayers}
+	
+	loop all players:
+		refreshPlayerScoreboard(loop-player)

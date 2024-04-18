@@ -1,0 +1,125 @@
+options:
+	Prefix: &c[&6AdminUtils&c]
+	SEPrefix: &6[&eSignEdit&6]
+		
+# Holograms
+						
+command createholo <text> <text>:
+	aliases: makeholo, holo, addholo, hologram
+	permission: op
+	description: Allows admins to create holograms.
+	permission message: &cOnly admins are allowed to use this command!
+	trigger:
+		spawn armor stand at player's position # Location
+		set {holograms::%arg-1%} to player's position # Add ID to holograms array so it can be deleted easily later
+		message "&6Created hologram with id &l%arg-1% &6containing ""&r%formatted arg-2%&6"""
+		makeHolo(player's position, arg-2)
+
+function makeHolo(loc: location, text: string):
+	spawn armor stand at {_loc} with nbt compound from "{Invisible:1b,Invulnerable:1b,PersistenceRequired:1b,CustomNameVisible:1b,NoGravity:1b}"
+	set name of last spawned armor stand to formatted {_text}
+	
+command deleteholo [<text>]:
+	aliases: delholo, removeholo, removehologram
+	permission: op
+	description: Allows admins to delete existing holograms.
+	permission message: &cOnly admins are allowed to use this command!
+	trigger:
+		if arg-1 isn't set:
+			send "&6&lList of all active holograms:"
+			loop {holograms::*}:
+				send "&6%loop-index%"#&l  |  Full Location: &6%{holograms::%loop-index%}%"
+			exit
+		# It should be worth noting that holograms are only removed if the player is in the same world as it
+		set {_world} to player's world
+		if {_world} is "world_the_end":
+			set {_world} to "the_end"
+		make player execute "kill @e[type=minecraft:armor_stand,distance=..1,limit=1,sort=nearest,x=%x position of {holograms::%arg-1%}%,y=%y position of {holograms::%arg-1%}%,z=%z position of {holograms::%arg-1%}%]"
+		delete {holograms::%arg-1%}
+		message "&6Successfully deleted hologram with ID: &l%arg-1%."
+		
+function delHolo(loc: location):
+	set {temp::togglekill} to true
+	loop entities in radius 0.25 of {_loc} where [input is an armor stand]:
+		kill loop-entity
+	delete {temp::togglekill}
+
+command seeinv <player>:
+	permission: op
+	trigger:
+		show arg-1 to player
+
+command /se [<string>] [<int>] [<string>]:
+	aliases: signedit, editsign, line
+	permission: op
+	description: Quickly and easily edit signs.
+	permission message: &cYou don't have permission to run this command!
+	trigger:
+		if arg-1 is "redo":
+			if {redo.%player%} is not set:
+				message "{@SEPrefix} &7You don't have anything to redo!"
+			else:
+				set {undos.%player%} to {s.%player%}
+				set {undol.%player%} to {arg2.%player%}
+				set {undo.%player%} to line {undol.%player%} of {undos.%player%}
+				message "{@SEPrefix} &7You have redone your last edit."
+				set line {undol.%player%} of {undos.%player%} to {redo.%player%}
+				clear {arg2.%player%}
+				clear {s.%player%}
+		else if arg-1 is "undo":
+			if {undo.%player%} is not set:
+				message "{@SEPrefix} &7You don't have anything to undo!"
+			else:
+				set {redo.%player%} to line {undol.%player%} of {undos.%player%}
+				message "{@SEPrefix} &7You have undone your last edit."
+				set line {undol.%player%} of {undos.%player%} to {undo.%player%}
+				clear {undos.%player%}
+				clear {undol.%player%}
+				clear {undo.%player%}
+		else if arg-1 is "editline" or "line" or "edit" or "setline":
+			if arg-3 is set:
+				if {sign.%player%} is set:
+					if arg-2 is greater than or equal to 5:
+						message "{@SEPrefix} &7You can only use lines &61 to 4!"
+					else:
+						set {s.%player%} to {sign.%player%}
+						set {arg2.%player%} to arg-2
+						set {undos.%player%} to {sign.%player%}
+						set {undol.%player%} to arg-2
+						set {undo.%player%} to line arg-2 of {sign.%Player%}
+						set {arg.%player%} to arg-3
+						replace all "&" with "§" in {arg.%player%}
+						set line arg-2 of {sign.%Player%} to {arg.%player%}
+						message "{@SEPrefix} &7Line %arg-2% has been updated."
+						clear {arg.%player%}
+				else:
+					message "{@SEPrefix} &7You need to select a sign first! Use &6/se select!"
+		else if arg-1 is "help":
+			message ""
+			message "{@SEPrefix} &6- Server Utils by &e&lAmazinAxel"
+			message ""
+			message "&e/se edit <line> <text> &7to edit a line"
+			message "&e/se select &7to select a sign to edit"
+			message "&e/se undo &7to undo an edit to a sign"
+			message "&e/se redo &7to redo an edit for a sign"
+			message ""
+		else:
+			message "{@SEPrefix} &7Click a sign to start editing."
+			set {signset.%player%} to true
+
+on right click on sign:
+	if {signset.%player%} is true:
+		cancel event
+		message "{@SEPrefix} &7Sign selected! Use &6/se edit <line> <text> &7to edit!" to player
+		set {sign.%player%} to the event-block
+		clear {signset.%player%}
+
+on tab complete of "/se":
+	set tab completions for position 1 to "edit" and "select" and "undo" and "redo"
+	if tab arg-1 is "edit":
+		set tab completions for position 2 to "1" and "2" and "3" and "4"
+
+command setmotd <text>:
+	trigger:
+		set {motd} to arg-1
+		message "&aSuccessfully updated MOTD!"

@@ -1,0 +1,123 @@
+# upgrade: minecraft:entity.husk.converted_to_zombie
+# cool sounds: block.netherite_block.fall | shroomlight | allay | goat
+
+on right click:
+	event-item is a wooden hoe or wooden shovel or stone hoe
+	{temp::%player%::reloading} is not true # Player is not reloading
+	{match::%{game::%player%::id}%::reloadLock} is not true # Match doesn't allow shooting yet
+	{temp::%player%::gunCooldown} is not true # Player is on gun shoot cooldown
+	{temp::%player%::FFASpawn} is not true # Player is not in a safezone 
+
+	if {temp::%player%::ammo} is 0:
+		sendActionbarError(player, "ᴏᴜᴛ ᴏꜰ ᴀᴍᴍᴏ! ʀᴇʟᴏᴀᴅɪɴɢ...")
+		reload(player)
+		exit
+	else if {match::%{game::%player%::id}%::sniperLock} is true:
+		sendActionbarError(player, "ʏᴏᴜ ᴄᴀɴᴛ ᴜѕᴇ ᴛʜɪѕ ʏᴇᴛ!")
+		exit
+	set {temp::%player%::gunCooldown} to true 
+	if event-item is a wooden hoe named "&7Python Revolver": # Python
+		play sound "minecraft:block.bamboo.hit" with volume 1 at player
+		raycast(player, 2, 1.5, 0.2, 0.006) # dmg, spread, dropoff, dmgDropoff
+		push player backwards at speed 0.1
+		gunCooldown(player, 9)
+	
+	else if event-item is a wooden shovel named "&6Double-Barrel Shotgun": # DB Shotgun
+		loop 9 times:
+			play sound "block.scaffolding.place" with volume 1.5 and pitch 0 at player
+			if {game::%player%} contains "2v2":
+				raycast(player, 2, 8, 0.25, 0) # dmg, spread, dropoff, dmgDropoff
+			else:
+				raycast(player, 0.9, 8, 0.25, 0) # dmg, spread, dropoff, dmgDropoff
+		push player backwards at speed 0.9
+		gunCooldown(player, 9)
+				
+	else if event-item is a stone hoe named "&7Hunting Rifle": # Huntin' Rifle
+		play sound "block.netherite_block.hit" with volume 1 and pitch 1.5 at player
+		raycast(player, 4, 0, 0.01, -0.035) # dmg, spread, dropoff, dmgDropoff
+		push player backwards at speed 0.45
+		gunCooldown(player, 35)
+
+	remove 1 from {temp::%player%::ammo}
+	gunStats(player)
+		
+on tool change:
+	player's held item is wooden shovel or wooden hoe or stone hoe
+	gunStats(player)
+
+
+function gunCooldown(p: player, time: number):
+	wait "%{_time}% ticks" parsed as timespan
+	delete {temp::%{_p}%::gunCooldown}
+
+function gunStats(p: player):
+	if {temp::%{_p}%::stick} is true:
+		send action bar "&6&lStick &c&l◆ &6ɴᴏ ᴀᴍᴍᴏ ʟᴇꜰᴛ!" to {_p}
+		exit
+	set {temp::%{_p}%::ammo} to 0 if {temp::%{_p}%::ammo} is not set
+	if {gun::%{_p}%} is "Pistol":
+		set {_gunName} to "Python Revolver"
+		set {_ammoType} to "ʀᴏᴜɴᴅѕ"
+	else if {gun::%{_p}%} is "Shotgun":
+		set {_gunName} to "Double Barrel"
+		set {_ammoType} to "ᴀᴍᴍᴏ"
+	else if {gun::%{_p}%} is "Rifle":
+		set {_gunName} to "Hunting Rifle"
+		set {_ammoType} to "ѕʜᴏᴛѕ"
+	send action bar "&6&l%{_gunName}% &c&l◆ &6%{_ammoType}% ʟᴇꜰᴛ: &l%{temp::%{_p}%::ammo}%" to {_p} if {temp::%{_p}%::reloading} is not true
+	send action bar "&6&l%{_gunName}% &c&l◆ &6ʀᴇʟᴏᴀᴅɪɴɢ..." to {_p} if {temp::%{_p}%::reloading} is true
+
+# Raycasting function for guns
+function raycast(p: player, dmg: number, spread: number, dropoff: number, dmgDropoff: number):
+	set {_x} to 0
+	set {_l} to 0
+	set {_startingPos} to location of {_p}
+	add 1.4 to y-coordinate of {_startingPos}
+	remove 0.1 from y-coordinate of {_startingPos} if {_p} is sneaking
+	set yaw of {_startingPos} to ({_p}'s yaw - (random number between ({_spread} * -1) and {_spread}))
+	set pitch of {_startingPos} to ({_p}'s pitch - (random number between ({_spread} * -1) and {_spread}))
+	loop 400 times: # How far a bullet goes
+		# Raytrace, add a line and account for dropoff
+		add 0.1 to {_l}
+		set {_loc} to location {_l} blocks in front of {_startingPos}
+		remove (random number between 0 and {_dropoff}) from y-location of {_loc}
+		make 1 dust using dustOption(black, 0.7) at {_loc} with extra 0
+		remove {_dmgDropoff} from {_dmg} # Removes damage slightly
+
+		# Check if the raycast hit a block and if it's near an enemy
+		loop blocks in radius 0.4 of {_loc}:
+			loop players in radius 3 of {_loc}:
+				exit 1 loop if {game::%loop-player%::team} is not {game::%{_p}%::team} # Make the bullet go thru blocks if its near a player (fixes gameplay)
+			exit if loop-block is not air or a ladder or carpet or light block
+
+		# Check for players around the bullet
+		loop players in radius 1.9 around {_loc}:
+			loop-player is not {_p}
+			# This is required to balance it out
+			distance between loop-player's head and {_loc} is less than 1
+			if {game::%{_p}%} is not "FFA":
+				{game::%loop-player%::id} is {game::%{_p}%::id} 
+			gamemode of loop-player is not spectator
+
+			# Calculate damage
+			if {game::%loop-player%::team} is {game::%{_p}%::team}:
+				sendActionbarError({_p}, "Don't shoot your teammates!")
+				exit
+			else if {game::%loop-player%} is "FFA":
+				{temp::%loop-player%::FFASpawn} is set
+				sendActionbarError({_p}, "Don't shoot players in spawn!")
+				exit
+			
+			set loop-player's invulnerability ticks to 0 # This makes it so bullet damage stacks
+			set {_temparmor::%loop-player%} to {temp::%loop-player%::armor}
+			set {temp::Shootout::lastShotBy::%loop-player%} to {_p}'s name
+			remove {_dmg} from {temp::%loop-player%::armor}
+			if {temp::%loop-player%::armor} is greater than 0:
+				sendActionbarError({_p}, "Your bullet was not powerful enough to penetrate the enemy's armor!")
+				exit
+			add {temp::%loop-player%::armor} to loop-player's health
+			play sound "minecraft:entity.arrow.hit_player" with volume 1 to {_p}
+			set {temp::%loop-player%::armor} to {_temparmor::%loop-player%}
+
+			set loop-player's invulnerability ticks to 20 # Reset their ticks
+			exit # Only shoot one player, stop the raycast from continuing

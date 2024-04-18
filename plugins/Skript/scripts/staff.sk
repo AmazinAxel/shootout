@@ -1,0 +1,137 @@
+command /kick [<player>] <string>:
+	permission: op
+	trigger:
+		if {rank::%player%::isStaff} is not true:
+			sender is not console
+			sendError(player, "You must be a staff member to use this command.")
+			exit
+		if arg-1 is op:
+			sendError(player, "&4YOU ARE NOT ALLOWED TO KICK ADMINS!")
+			exit
+		if {rank::%arg-1%::isStaff} is true:
+			sendError(player, "You can't kick other staff members!")
+			exit
+		if arg-1 is player:
+			sendError(player, "You can't kick yourself, silly!")
+			exit
+		if arg-1 or arg-2 is not set:
+			sendError(player, "Please enter the username and the kick message of the player you want to kick.")
+			exit
+		kick arg-1 due to arg-2
+		IP-ban arg-1 due to "&cYou were kicked! Please wait a few moments to rejoin." for 30 seconds
+		message "&cYou have kicked %arg-1%."
+		log "%player% kicked %arg-1% because %arg-2%" to "staff.log" in strict proper case # log this!
+		message "&cKICK &r> &c%player% &rkicked &c%arg-1% &rbecause %arg-2%." to all players
+
+command /permban [<offline player>] <text>:
+	trigger:
+		if {rank::%player%::isStaff} is not true:
+			sender is not console
+			sendError(player, "You must be a staff member to use this command.")
+			exit
+		if arg-1 is op:
+			sendError(player, "&4YOU ARE NOT ALLOWED TO BAN ADMINS.")
+			exit
+		if arg 1 is not set:
+			sendError(player, "Please specify the player you'd like to permban.")
+			exit
+		if arg 2 is not set:
+			sendError(player, "Please specify a permban reason.")
+			exit
+		
+		kick arg-1 due to "&cYou have been permanently banned. Appeal in the Discord server. (https://discord.gg/4XQEMKjtaj)"
+		IP-ban arg-1 due to "&cYou have been permanently banned. Appeal in the Discord server. Reason: '%arg-2%'%nl%Discord: https://discord.gg/4XQEMKjtaj"
+		message "&cYou have permanently banned %arg-1%."
+		message "&cBAN &r> &c%player% &rpermanently banned &c%arg-1% &rbecause %arg-2%." to all players
+		log "%player% has permanently banned %arg-1% because '%arg-2%'" to "staff.log" in strict proper case # add suggestion to file
+
+command /ban [<offline player>] [<text>] <number> <text>:
+	usage: Usage: /ban <player> <ban message> <timespan> <ticks/seconds/minutes/hours>
+	aliases: tempban
+	trigger:
+		if {rank::%player%::isStaff} is not true:
+			sender is not console
+			sendError(player, "You must be a staff member to use this command.")
+			exit
+		if arg-1 is op:
+			sendError(player, "&4YOU ARE NOT ALLOWED TO BAN ADMINS.")
+			exit
+		if arg 1 is not set:
+			sendError(player, "Please specify the player you'd like to ban.")
+			exit
+		if arg 2 is not set:
+			sendError(player, "Please specify a ban reason.")
+			exit
+		if arg 3 is not set:
+			sendError(player, "Please specify how long you'd like to ban the player for.")
+			exit
+		if arg 4 is not set:
+			sendError(player, "Please specify how long you'd like to ban the player for with ticks, minutes, seconds, or hours.")
+			exit
+		if arg 4 is not "tick" or "ticks" or "second" or "seconds" or "minute" or "minutes" or "hour" or "hours":
+			sendError(player, "Invalid timespan (%arg-4%). Please use tick(s), minute(s), second(s), or hour(s).")
+			exit
+		sendError(player, "%arg-1% has been banned.")
+		kick arg-1 due to "&cYou have been banned. Appeal in our Discord server or wait out your ban (%arg-3% %arg-4%). Join our Discord to appeal: https://discord.gg/4XQEMKjtaj"
+		message "&cBAN &r> &c%player% &rbanned &c%arg-1% &rfor &c%arg-3% %arg-4% &rbecause %arg-2%." to all players
+		log "%player% has temporarially banned %arg-1% for %arg-3% %arg-4% because '%arg-2%'" to "staff.log" in strict proper case # add suggestion to file
+		set {_time} to "%arg-3% %arg-4%" parsed as timespan
+		IP-ban arg-1 due to "&cYou have been banned. Appeal in our Discord server or wait out your ban (%arg-3% %arg-4%). Reason: '%arg-2%'%nl%Join our Discord if you think this was in error: https://discord.gg/4XQEMKjtaj" for {_time}
+
+command /unban [<offline player>]:
+	aliases: /pardon
+	trigger:
+		if {rank::%player%::isStaff} is not true:
+			sender is not console
+			sendError(player, "You must be a staff member to use this command.")
+			exit
+		if arg-1 isn't set:
+			sendError(player, "Please specify the player you'd like to unban.")
+			exit
+		unban arg-1
+		message "&c%arg-1% has been unbanned."
+		message "&cBAN &r> &c%player% &runbanned &c%arg-1%." to all players
+		log "%player% has unbanned %arg-1%!" to "staff.log" in strict proper case # add suggestion to file
+		
+command /mute [<player>]:
+	trigger:
+		if {rank::%player%::isStaff} is not true:
+			sender is not console
+			sendError(player, "You must be a staff member to use this command.")
+			exit
+		if arg-1 is not set:
+			sendError(player, "Please enter the username of the player you want to mute.")
+			exit
+		arg-1 is not op
+		set {muted::%arg-1%} to true
+		message "&c%arg-1% has been permanently muted."
+		message "&cMUTE &r> &c%player% &rpermanently muted &c%arg-1%." to all players
+		log "%player% has permanently muted %arg-1%" to "staff.log" in strict proper case # add suggestion to file
+		
+command /unmute [<player>]:
+	trigger:
+		if {rank::%player%::isStaff} is not true:
+			sender is not console
+			sendError(player, "You must be a staff member to use this command.")
+			exit
+		delete {muted::%arg-1%}
+		message "&c%arg-1% has been unmuted."
+		message "&cUNMUTE &r> &c%player% &rhas unmuted &c%arg-1%." to all players
+		log "%player% has unmuted %arg-1%" to "staff.log" in strict proper case # add suggestion to file
+		
+command /clearchat:
+	aliases: cc
+	trigger:
+		if {rank::%player%::isStaff} is not true:
+			sender is not console
+			sendError(player, "You must be a staff member to use this command.")
+			exit
+		loop 99 times: # Exactly how many messages are needed to clear chat fully
+			message "" to all players
+		message " The chat has been cleared by &3%player%." to all players
+		log "%player% cleared the chat." to "staff.log" in strict proper case # add suggestion to file
+		
+on chat:
+	{muted::%player%} is true
+	sendError(player, "You are currently muted. You aren't allowed to talk in chat. Appeal in our Discord server.")
+	cancel event

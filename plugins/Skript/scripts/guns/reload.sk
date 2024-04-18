@@ -1,0 +1,73 @@
+# This script handles the Shootout Gun Reloading system (80% optimized, very clean code)
+
+on left click:
+	{temp::%player%::reloading} is not true
+	{match::%{game::%player%::id}%::reloadLock} is not true
+	event-item is wooden shovel or wooden hoe or stone hoe
+	reload(player)
+	
+on drop:
+	{temp::%player%::reloading} is not true
+	{match::%{game::%player%::id}%::reloadLock} is not true
+	event-item is wooden shovel or wooden hoe or stone hoe
+	cancel event
+	reload(player)
+
+function reload(p: player):
+	if {temp::%{_p}%::reloading} is true:
+		sendActionbarError({_p}, "You're reloading too fast!")
+		exit
+	
+	reloadGun({_p}, wooden hoe named "&7Python Revolver", green dye, 20) if {gun::%{_p}%} is "Pistol" # Revolver
+	reloadGun({_p}, wooden shovel named "&6Double-Barrel Shotgun", red dye, 10) if {gun::%{_p}%} is "Shotgun" # DB Shotgun
+	reloadGun({_p}, stone hoe named "&7Hunting Rifle", black dye, 25) if {gun::%{_p}%} is "Rifle" # Huntin' Rifle
+	
+function reloadGun(p: player, gunItem: item, ammo: item, reloadTime: integer):
+	if {_p} doesn't have 1 of {_ammo}:
+		reloadError({_p})
+		exit
+	
+	set {temp::%{_p}%::reloading} to true
+	gunStats({_p})
+	send title "" with subtitle "&6ʀᴇʟᴏᴀᴅɪɴɢ..." to {_p} for 10 seconds with fadein 5 ticks and fadeout 5 ticks
+	play sound "block.soul_sand.hit" with volume 100 to {_p}
+	loop {_reloadTime} times: # Only runs every 2 ticks for lag prevention
+		if {game::%{_p}%} is not "FFA":
+			{match::%{game::%{_p}%::id}%::status} is not "Running"
+			delete {temp::%{_p}%::reloading}
+			exit
+		if {_p} is not holding {_gunItem}:
+			send title "" with subtitle "&cʀᴇʟᴏᴀᴅ ꜰᴀɪʟᴇᴅ!" to {_p} for 1 second with fadein 0 ticks and fadeout 10 ticks
+			errorSound({_p})
+			delete {temp::%{_p}%::reloading}
+			exit
+		else if {_p} doesn't have 1 of {_ammo}:
+			reloadError({_p})
+			exit
+		wait 2 ticks
+	remove 1 of {_ammo} from {_p}
+	refillAmmo({_p}) # Refills the gun's ammo
+	send title "" with subtitle "&6ʀᴇʟᴏᴀᴅᴇᴅ!" to {_p} for 2 seconds with fadein 0 ticks
+	gunStats({_p})
+	play sound "entity.panda.step" to {_p}
+	delete {temp::%{_p}%::reloading}
+
+function refillAmmo(p: player):
+	set {temp::%{_p}%::ammo} to 8 if {gun::%{_p}%} is "Pistol"
+	set {temp::%{_p}%::ammo} to 2 if {gun::%{_p}%} is "Shotgun"
+	set {temp::%{_p}%::ammo} to 3 if {gun::%{_p}%} is "Rifle"
+
+function reloadError(p: player):
+	if {_p} has 1 of stick:
+		sendActionbarError({_p}, "You already have a stick!")
+		exit
+	sendError({_p}, "You have no ammo left!")
+	send title "&6&lNo Ammo Left!" with subtitle "&6ʏᴏᴜ'ᴠᴇ ʀᴇᴄᴇɪᴠᴇᴅ ᴀ ѕᴛɪᴄᴋ!" to {_p} for 2 seconds
+	message "&6&lNo Ammo >> &6ʏᴏᴜ'ᴠᴇ ʀᴇᴄɪᴇᴠᴇᴅ ᴀ ѕᴛɪᴄᴋ!" to {_p}
+	give {_p} stick of sharpness 3 named "&6Sharp Stick" with lore "&7I found this off the ground..." and "&7It seems sharp enough," and "&7hopefully it's enough to finish" and "&7the job..."
+	remove 1 wooden hoe from {_p}
+	remove 1 stone hoe from {_p}
+	remove 1 wooden shovel from {_p}
+	delete {temp::%{_p}%::reloading}
+	set {temp::%{_p}%::stick} to true
+	gunStats({_p})

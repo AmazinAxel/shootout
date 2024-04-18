@@ -1,0 +1,78 @@
+# This file contains all utility functions for Shootout FFA and Shootout duels
+
+function shootoutKit(p: player):
+	shootoutAltSuccessSound({_p})
+	set metadata tag "KitSelector" of {_p} to chest inventory with 5 rows named "&c&lShootout Kits"
+	if {gun::%{_p}%} is "Pistol":
+		set slot 13 of metadata tag "KitSelector" of {_p} to wooden hoe named "&cSelected Kit: &lRevolver" with lore "&6Your selected kit: &c&lRevolver" and "&6You'll get a &cPython Revolver &6along" and "&6with &c10 magazines &6with this kit"
+	else if {gun::%{_p}%} is "Rifle":
+		set slot 13 of metadata tag "KitSelector" of {_p} to stone hoe named "&cSelected Kit: &cRifle" with lore "&6Your selected kit: &c&lRifle" and "&6You'll get a &cHunting Rifle &6along" and "&6with &c6 magazines &6with this kit"
+	else if {gun::%{_p}%} is "Shotgun":
+		set slot 13 of metadata tag "KitSelector" of {_p} to wooden shovel named "&cSelected Kit: &lShotgun" with lore "&6Your selected kit: &c&lShotgun" and "&6You'll get a &cDouble Barrel Shotgun &6along" and "&6with &c16 magazines &6with this kit"
+	set slot 28 of metadata tag "KitSelector" of {_p} to wooden shovel named "&7Double Barrel Shotgun" with lore "&6Shoots in two short and" and "&6scattered bursts. Great" and "&6for close-range combat."
+	set slot 31 of metadata tag "KitSelector" of {_p} to wooden hoe named "&7Python Revolver" with lore "&6Fires bullets in a" and "&6rapid succession. Great" and "&6for mid-range combat."
+	set slot 34 of metadata tag "KitSelector" of {_p} to stone hoe named "&7Hunting Rifle" with lore "&6A rifle originally intended" and "&6to hunt wild game. Very" and "&6good at long-range fighting."
+	open (metadata tag "KitSelector" of {_p}) to {_p}
+
+on drop:
+	cancel event if event-item is leather helmet or leather chestplate or leather leggings or leather boots or stone hoe or wooden hoe or wooden shovel or green dye or black dye or red dye
+
+on inventory click:
+	event-inventory = (metadata tag "KitSelector" of player)
+	cancel event
+	if event-slot is 28:
+		if {gun::%player%} is "Shotgun":
+			sendError(player, "You already have the &lShotgun &ckit selected!")
+			exit
+		set {gun::%player%} to "Shotgun" 
+		shootoutSuccessSound(player)
+		set slot 13 of player's current inventory to wooden shovel named "&cSelected Kit: &lShotgun" with lore "&6Your selected kit: &c&lShotgun" and "&6You'll get a &cDouble Barrel Shotgun &6along" and "&6with &c16 magazines &6with this kit"
+		message "&6You have changed your kit to: &6&lDouble Barrel Shotgun"
+	else if event-slot is 31:
+		if {gun::%player%} is "Pistol":
+			sendError(player, "You already have the &lRevolver &ckit selected!")
+			exit
+		set {gun::%player%} to "Pistol" 
+		shootoutSuccessSound(player)
+		set slot 13 of player's current inventory to wooden hoe named "&cSelected Kit: &lRevolver" with lore "&6Your selected kit: &c&lRevolver" and "&6You'll get a &cPython Revolver &6along" and "&6with &c10 magazines &6with this kit"
+		message "&6You have changed your kit to: &6&lPython Revolver"
+	else if event-slot is 34:
+		if {gun::%player%} is "Rifle":
+			sendError(player, "You already have the &lRifle &ckit selected!")
+			exit
+		set {gun::%player%} to "Rifle" 
+		shootoutSuccessSound(player)
+		set slot 13 of player's current inventory to stone hoe named "&cSelected Kit: &cRifle" with lore "&6Your selected kit: &c&lRifle" and "&6You'll get a &cHunting Rifle &6along" and "&6with &c6 magazines &6with this kit"
+		message "&6You have changed your kit to: &6&lHunting Rifle"
+	refreshPlayerScoreboard(player)
+
+on damage:
+	{game::%victim%} contains "Shootout" or "FFA"
+	exit if attacker's tool is wooden sword or stick # Allow wooden swords & sticks to be used as weapons in game
+	cancel event if attacker is player # No melee hitting!
+	cancel event if damage cause is fall # No fall damage
+
+function giveKit(p: player):
+	set {gun::%{_p}%} to "Pistol" if {gun::%{_p}%} is not set
+	if {gun::%{_p}%} is "Pistol":
+		give {_p} wooden hoe named "&7Python Revolver" with lore "&6Fires bullets in a" and "&6rapid succession. Great" and "&6for mid-range combat."
+		set the chestplate of {_p} to unbreakable leather chestplate of protection 2 named "&6Cowboy Shirt"
+		set the leggings of {_p} to unbreakable leather leggings of protection 2 named "&6Cowboy Jeans"
+		set slot 9 of {_p}'s inventory to 10 green dye named "&aPython Ammo"
+	else if {gun::%{_p}%} is "Shotgun":
+		give {_p} wooden shovel named "&6Double-Barrel Shotgun" with lore "&6Shoots in two short and" and "&6scattered bursts. Great" and "&6for close-range combat."
+		set the chestplate of {_p} to unbreakable leather chestplate of protection 2 named "&6Cowboy Shirt"
+		set slot 9 of {_p}'s inventory to 16 red dye named "&cPile of Buckshot"
+	else if {gun::%{_p}%} is "Rifle":
+		give {_p} stone hoe named "&7Hunting Rifle" with lore "&6A rifle originally intended" and "&6to hunt wild game. Very" and "&6good at long-range fighting."
+		set the helmet of {_p} to unbreakable leather helmet of protection 2 named "&6Cowboy Hat"
+		set the chestplate of {_p} to unbreakable leather chestplate of protection 2 named "&6Cowboy Shirt"
+		set the leggings of {_p} to unbreakable leather leggings of protection 2 named "&6Cowboy Jeans"
+		set the boots of {_p} to unbreakable leather boots of protection 2 named "&6Cowboy Boots"
+		set slot 9 of {_p}'s inventory to 8 black dye named "&8Rifle Magazines"
+	refillAmmo({_p}) # Sets the player's ammo to the default amount
+		
+on right click on sign:
+	2nd line of clicked block is "Click me to"
+	3rd line of clicked block is "select a &c&lkit!"
+	shootoutKit(player)

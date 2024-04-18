@@ -1,0 +1,77 @@
+# TODO: basically recode this and rename the variables bc theyre totally disgusting
+
+on right click on sign:
+	if 2nd line of clicked sign is "&6&lJoin Shootout:":
+		3rd line of clicked sign is "&c&lDuel Arena"
+		exitMatch(player)
+		set {game::%player%} to "FFA"
+		teleport player to location(-128.5, 32, -18.5, "Game", 45)
+		shootoutSuccessSound(player)
+		show 100 cloud 2 blocks above player to all players
+		set {temp::%player%::FFASpawn} to true
+		send title "&6Dueling Arena" with subtitle "&6&lShootout Dueling Arena"
+		send action bar "&cJump down to join the action!" to player
+		refreshPlayerScoreboard(player)
+		updateTablistName(player)
+		loop all players:
+			{game::%loop-player%} is "FFA"
+			message "&6&l%player% &6ʜᴀѕ ᴊᴏɪɴᴇᴅ ᴛʜᴇ ᴅᴜᴇʟɪɴɢ ᴀʀᴇɴᴀ!" to loop-player
+		loopJump(player)
+	else if 2nd line of clicked sign is "&lReturn to the":
+		3rd line of clicked sign is "&c&lDuels Lobby"
+		spawn(player)
+		loop all players:
+			{game::%loop-player%} is "FFA"
+			message "&6&l%player% &6has left the dueling arena!" to loop-player
+	else if 2nd line of clicked sign is "&c&lJump down &cto":
+		3rd line of clicked sign is "&6join the &laction!"
+		randomTP(player)
+
+			
+function loopJump(p: player):
+	while {temp::%{_p}%::FFASpawn} is true:
+		if {game::%{_p}%} is not "FFA":	
+			delete {temp::%{_p}%::FFASpawn}
+			exit
+		randomTP({_p}) if distance between {_p}'s location and location(-128.5, 32, -18.5, "Game") is greater than 4.5
+			
+		wait 5 ticks
+
+function randomTP(p: player):
+	delete {temp::%{_p}%::FFASpawn}
+	set {temp::%{_p}%::reloading} to true
+	
+	# RANDOM TP:
+	set {_locations::*} to location(-128.5, 37, -4.5, "Game", 90) and location(-172.5, 40, -1.5, "Game", -90) and location(-134.5, 34, 22.5, "Game", 90) and location(-153.5, 27, 39.5, "Game", 180) and location(-151.5, 27, -16.5, "Game", 0)
+	set {_random} to a random integer between 1 and size of {_locations::*}
+	teleport {_p} to {_locations::%{_random}%}
+	giveKit({_p})
+	duelIntroSequence({_p})
+	wait 15 ticks
+	delete {temp::%{_p}%::reloading}
+	
+on death:
+	{game::%victim%} is "FFA"
+	cancel event
+	strike lightning effect at victim
+	clear inventory of victim
+	set {_randomdeathmsg} to a random integer between 1 and 3
+	if {temp::Shootout::lastShotBy::%victim%} is set:
+		set {_deathmessage::*} to "&6&l%victim% &6was outmatched by &6&l%{temp::Shootout::lastShotBy::%victim%}%!" and "&6&l%victim% &6was outgunned by &6&l%{temp::Shootout::lastShotBy::%victim%}%!" and "&6&l%{temp::Shootout::lastShotBy::%victim%}% &6was quicker on the draw and took out &6&l%victim%!"
+	else:
+		set {_deathmessage::*} to "&6&l%victim% &6was buried 6 feet under!" and "&6&l%victim% &6kicked the bucket!" and "&6&l%victim% &6bit the dust!"
+	loop all players:
+		{game::%loop-player%} is "FFA"
+		message "%{_deathmessage::%{_randomdeathmsg}%}%" to loop-player
+	errorSound(victim)
+	set {_randomDeathMessage} to a random integer between 1 and 7
+	set {_subtitle::*} to "&6You've met your match, partner!" and "&6You're not quick enough on the draw, partner!" and "&6Better luck next time, cowboy!" and "&6Looks like it's high noon for you!" and "&6Seems like you've met your last round-up!" and "&6You've bitten the dust, partner!" and "&6Looks like you're all hat and no cattle!"
+	send title "&c&lYou Died!" with subtitle "%{_subtitle::%{_randomDeathMessage}%}%" to victim for 1.5 seconds with fadein 0 ticks and fadeout 5 ticks
+	wait 2 ticks
+	teleport victim to location(-128.5, 32, -18.5, "Game", 45)
+	set {temp::%victim%::FFASpawn} to true
+	loopJump(victim)
+
+on right click on chest or barrel or dark oak door or spruce door:
+	{game::%player%} is "FFA"
+	cancel event if gamemode of player is not creative

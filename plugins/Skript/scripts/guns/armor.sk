@@ -1,0 +1,50 @@
+on player armor change:
+	set {temp::%player%::armor} to 0
+	if player is wearing leather helmet:
+		add 0.018 to {temp::%player%::armor}
+	if player is wearing leather chestplate:
+		add 0.018 to {temp::%player%::armor}
+	if player is wearing leather leggings:
+		add 0.018 to {temp::%player%::armor}
+	if player is wearing leather boots:
+		add 0.018 to {temp::%player%::armor}
+	if player is wearing chainmail helmet:
+		add 0.036 to {temp::%player%::armor}
+	if player is wearing chainmail chestplate:
+		add 0.036 to {temp::%player%::armor}
+	if player is wearing chainmail leggings:
+		add 0.036 to {temp::%player%::armor}
+	if player is wearing chainmail boots:
+		add 0.036 to {temp::%player%::armor}
+	if player is wearing iron helmet:
+		add 0.054 to {temp::%player%::armor}
+	if player is wearing iron chestplate:
+		add 0.054 to {temp::%player%::armor}
+	if player is wearing iron leggings:
+		add 0.054 to {temp::%player%::armor}
+	if player is wearing iron boots:
+		add 0.054 to {temp::%player%::armor}
+	if player is wearing gold helmet:
+		add 0.072 to {temp::%player%::armor}
+	if player is wearing gold chestplate:
+		add 0.072 to {temp::%player%::armor}
+	if player is wearing gold leggings:
+		add 0.072 to {temp::%player%::armor}
+	if player is wearing gold boots:
+		add 0.072 to {temp::%player%::armor}
+	if player is wearing diamond helmet:
+		add 0.081 to {temp::%player%::armor}
+	if player is wearing diamond chestplate:
+		add 0.081 to {temp::%player%::armor}
+	if player is wearing diamond leggings:
+		add 0.081 to {temp::%player%::armor}
+	if player is wearing diamond boots:
+		add 0.081 to {temp::%player%::armor}
+	if player is wearing netherite helmet:
+		add 0.09 to {temp::%player%::armor}
+	if player is wearing netherite chestplate:
+		add 0.09 to {temp::%player%::armor}
+	if player is wearing netherite leggings:
+		add 0.09 to {temp::%player%::armor}
+	if player is wearing netherite boots:
+		add 0.09 to {temp::%player%::armor}

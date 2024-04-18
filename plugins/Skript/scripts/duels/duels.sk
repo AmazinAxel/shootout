@@ -1,0 +1,231 @@
+# This script handles most of the dueling system, from starting and ending games and queues.
+# Because Shootout is so simple, all of the Shootout code is efficiently contained here.
+# This file is easily extensible to add any extra dueling minigames.
+
+command /endmatch:
+	trigger:
+		endMatch({game::%player%::id})
+		message "&6Ended current match!"
+				
+on right click on sign:
+	2nd line of clicked sign contains "&6&lShootout 1v1" or "&6&lShootout 2v2" or "&6&lFistSumo 1v1"
+
+	# Run a few checks
+	set {_id} to getIDOfSign(event-block)
+	if {match::%{_id}%::status} is "Starting":
+		sendError(player, "This match is starting! Please wait before trying to spectate.")
+		exit
+	else if {match::%{_id}%::status} is "Ending":
+		sendError(player, "This match is ending! Please wait a few seconds before trying to rejoin.")
+		exit
+	
+	# Exit the player's previous game and queue
+	set {_exitQueue} to true if {game::%player%::id} is {_id}
+	exitMatch(player, {_id}) # Exit their previous game
+	exit if {_exitQueue} is true # If they're reclicking the sign, exit the queue
+
+	if {match::%{_id}%::status} is "Running": # They want to spectate 
+		set {game::%player%} to "Spectator"
+		set {game::%player%::id} to {_id}
+		teleport player to arenaSpawn({_id})
+		message "&6ʏᴏᴜ'ʀᴇ ɴᴏᴡ ѕᴘᴇᴄᴛᴀᴛɪɴɢ ᴀ ᴍᴀᴛᴄʜ!" to player
+		message "&6ᴛᴏ ѕᴛᴏᴘ ѕᴘᴇᴄᴛᴀᴛɪɴɢ, ᴜѕᴇ &c&l/spawn!" to player
+		send title "&6Spectating" with subtitle "&6ᴜѕᴇ &n/ѕᴘᴀᴡɴ &6ᴛᴏ ʟᴇᴀᴠᴇ!"
+		shootoutAltSuccessSound(player)
+		set gamemode of player to spectator
+		refreshPlayerScoreboard(player)
+		updateTablistName(player)
+		loop all players:
+			{game::%loop-player%::id} is {_id} # Check game ID
+			message "&6&l%player% &6ɪѕ ɴᴏᴡ ѕᴘᴇᴄᴛᴀᴛɪɴɢ!" to loop-player
+		exit
+			
+	{match::%{_id}%::status} is not set
+	# Add player to the queue
+	send title "" with subtitle "" to player # Reset title
+	set {game::%player%} to "Queue"
+	set {game::%player%::id} to {_id}
+	
+	updateSign(event-block, {_id})
+		
+	# Simple playerTarget functions for 1v1 and 2v2 games
+	set {_type} to "Shootout1v1" if 2nd line of clicked sign contains "Shootout 1v1"
+	set {_type} to "Shootout2v2" if 2nd line of clicked sign contains "Shootout 2v2"
+	set {_type} to "FistSumo1v1" if 2nd line of clicked sign contains "FistSumo 1v1"
+	set {_playerTarget} to 2 if {_type} is "Shootout1v1" or "FistSumo1v1" # DEBUG CODE REMVOE LATER
+	set {_playerTarget} to 4 if {_type} is "Shootout2v2" # DEBUG CODE, REMOVE LATER
+
+		
+	set {_playersQueued} to 0
+	loop all players:
+		{game::%loop-player%::id} is {_id}
+		add 1 to {_playersQueued}
+
+	if {_playersQueued} is not {_playerTarget}:
+		message "&6ʏᴏᴜ'ʀᴇ ɴᴏᴡ ɪɴ ᴛʜᴇ ǫᴜᴇᴜᴇ ꜰᴏʀ ᴛʜɪѕ ᴍᴀᴛᴄʜ!" to player
+		shootoutSuccessSound(player)
+		updateTablistName(player)
+		refreshScoreboard()
+		while {match::%{_id}%::status} is not set:
+			exit if {game::%player%::id} is not {_id}
+			send action bar "&6ᴘʟᴇᴀѕᴇ ᴡᴀɪᴛ ꜰᴏʀ ᴘʟᴀʏᴇʀѕ ᴛᴏ ᴊᴏɪɴ ʏᴏᴜʀ ᴅᴜᴇʟ." to player
+			wait 2 seconds
+	else: # There are enough players, lets start the game!
+		set {match::%{_id}%::reloadLock} to true
+		set {_spawnpoints::*} to arenaSpawnpoints({_id})
+		set {_team} to 1
+		set {_playerID} to 1
+		set {match::%{_id}%::status} to "Starting"
+		updateSign(event-block, {_id})
+
+		loop all players:
+			{game::%loop-player%::id} is {_id} # Check game ID
+			message "&6&l%player% joined! &6ᴛʜᴇ ᴅᴜᴇʟ ɪѕ ɴᴏᴡ ѕᴛᴀʀᴛɪɴɢ!" to loop-player
+			set {game::%loop-player%} to {_type}
+			updateTablistName(loop-player)
+		refreshScoreboard()
+			
+		# Animate player joining sequence
+		set {_pitch} to 1 
+		loop 15 times:
+			exit if {match::%{_id}%::status} is not "Starting"
+			loop all players:
+				{game::%loop-player%::id} is {_id}
+				push loop-player upwards with force 0.12
+				show 1 cloud at loop-player
+				play sound "block.note_block.banjo" with pitch {_pitch} to loop-player
+			set {_pitch} to {_pitch} * 1.05
+			wait 1 tick
+		wait 4 ticks
+			
+		# Teleport all players in!
+		loop shuffled all players:
+			{game::%loop-player%::id} is {_id}
+			set {_team} to 1 if {_team} is 3 # Only 2 teams
+			set {game::%loop-player%::team} to {_team}
+			teleport loop-player to {_spawnpoints::%{_playerID}%}
+			add 1 to {_team} and {_playerID}
+		set {match::%{_id}%::frozen} to true # Freeze all players
+
+		# Animate the players going down
+		set {_pitch} to 2
+		loop 10 times:
+			exit if {match::%{_id}%::status} is not "Starting"
+			loop all players:
+				{game::%loop-player%::id} is {_id}
+				play sound "block.note_block.banjo" with pitch {_pitch} to loop-player
+				set {_loc} to location of loop-player
+				remove 0.2 from y-coordinate of {_loc}
+				teleport loop-player to {_loc}
+				show 1 cloud at loop-player
+			set {_pitch} to {_pitch} * 0.95
+			wait 1 tick
+		wait 4 ticks
+
+		set {_count} to 3
+		loop 3 times:
+			exit if {match::%{_id}%::status} is not "Starting"
+			loop all players:
+				{game::%loop-player%::id} is {_id}
+				send title "&6&l%{_count}%" with subtitle "&6&lᴛʜᴇ ᴅᴜᴇʟ ɪѕ ѕᴛᴀʀᴛɪɴɢ ѕᴏᴏɴ!" to loop-player
+				play sound "block.note_block.banjo" with pitch 0.7 to loop-player
+			remove 1 from {_count}
+			wait 1 second
+			
+		loop all players:
+			{game::%loop-player%::id} is {_id}
+			send title "&6&lDuel!" with subtitle "&6&lᴛʜᴇ ᴅᴜᴇʟ ʜᴀѕ ѕᴛᴀʀᴛᴇᴅ!" to loop-player for 1 second
+			duelIntroSequence(loop-player) # Sound effect
+			giveKit(loop-player) if gamemode of loop-player is not spectator
+			
+		set {match::%{_id}%::status} to "Running"
+		updateSign(event-block, {_id})
+		delete {match::%{_id}%::reloadLock} and {match::%{_id}%::frozen}
+		duelTimer({_id})
+		gunStatsLoop({_id})
+		set {match::%{_id}%::sniperLock} to true
+		loop 30 times: # 1.5 seconds
+			exit if {match::%{_id}%::status} is not "Running"
+			wait 1 tick
+		delete {match::%{_id}%::sniperLock}
+
+on death:
+	cancel event # By default we should always cancel death events as they are handled by different games
+	{game::%victim%} contains "1v1" or "2v2" # Checks if they're in a duel
+	gamemode of victim is not spectator # Checks if they are a spectator already
+
+	set {_id} to {game::%victim%::id}
+	{match::%{_id}%::status} is "Running" # Sanity check
+	
+	set {match::%{_id}%::reloadLock} to true
+	set gamemode of victim to spectator
+	clear inventory of victim
+	set health of victim to 20
+	strike lightning effect at victim
+	wait 5 ticks # This gives time for a game to tie
+	exit if {match::%{_id}%::status} is not "Running" # This means that there was a tie, we shouldn't continue here
+	matchEndCheck({_id}) # End game (also checks for ties)
+
+function endMatch(id: integer):
+	{match::%{_id}%::status} is "Starting" or "Running" # Sanity check
+	set {match::%{_id}%::reloadLock} to true
+	set {match::%{_id}%::status} to "Ending"
+	loop all players:
+		{game::%loop-player%::id} is {_id}
+		gamemode of loop-player is not spectator
+		add loop-player to {_winners::*}
+	loop all players:
+		{game::%loop-player%::id} is {_id}
+		send title "&6&lᴅᴜᴇʟ ᴏᴠᴇʀ!" with subtitle "&6%{_winners::*}% won!" to loop-player for 3 seconds with fadein 0 ticks and fadeout 5 ticks if {_winners::*} is set
+		send title "&6&lᴅᴜᴇʟ ᴏᴠᴇʀ!" with subtitle "&6ᴇɴᴅᴇᴅ ᴀѕ ᴀ ᴛɪᴇ!" to loop-player for 3 seconds with fadein 0 ticks and fadeout 5 ticks if {_winners::*} is not set
+		matchEndSound(loop-player)
+	updateSign(block at getSignByID({_id}), {_id})
+	wait 2 seconds
+	delete {match::%{_id}%::*} # Fixes a few bugs, clears match cache
+	loop all players:
+		{game::%loop-player%::id} is {_id}
+		spawn(loop-player)
+	updateSign(block at getSignByID({_id}), {_id})
+	
+function duelTimer(id: integer):
+	set {match::%{_id}%::time} to 240 # 4 minutes
+	while {match::%{_id}%::status} is "Running":
+		remove 1 from {match::%{_id}%::time}
+		if {match::%{_id}%::time} is 0:
+			loop all players:
+				{game::%loop-player%::id} is {_id}
+				message "&6&lTime's Up! &6ᴛʜɪѕ ᴅᴜᴇʟ ᴇɴᴅᴇᴅ ᴀѕ ᴀ ᴛɪᴇ!" to loop-player
+				matchEndSound(loop-player)
+				set gamemode of loop-player to spectator # Makes the end game function work
+			endMatch({_id})
+			exit
+		if {match::%{_id}%::time} is 120 or 60:
+			loop all players:
+				{game::%loop-player%::id} is {_id}
+				message " &6&lTIME >> &f2 ᴍɪɴᴜᴛᴇѕ ʀᴇᴍᴀɪɴɪɴɢ!" to loop-player if {match::%{_id}%::time} is 120
+				message " &6&lTIME >> &f1 ᴍɪɴᴜᴛᴇ ʀᴇᴍᴀɪɴɪɴɢ!" to loop-player if {match::%{_id}%::time} is 60
+		else if {match::%{_id}%::time} is 20:
+			loop all players:
+				{game::%loop-player%::id} is {_id}
+				send title "&6&l%{match::%{_id}%::time}%" with subtitle "&6The match will end soon!" to loop-player for 10 ticks with fadein 0 ticks with fadeout 10 ticks
+				play sound "block.note_block.banjo" with pitch 0.7 to loop-player
+		if {match::%{_id}%::time} is 30 or 20 or 10:
+			loop all players:
+				{game::%loop-player%::id} is {_id}
+				message " &6&lTIME >> &f%{match::%{_id}%::time}% ѕᴇᴄᴏɴᴅѕ ʀᴇᴍᴀɪɴɪɴɢ!" to loop-player
+		else if {match::%{_id}%::time} is less than 6: # 5, 4, 3, 2, 1
+			loop all players:
+				{game::%loop-player%::id} is {_id}
+				send title "&6&l%{match::%{_id}%::time}%" to loop-player with fadein 0 ticks
+				play sound "block.note_block.banjo" with pitch 0.7 to loop-player
+		wait 1 second
+
+function gunStatsLoop(id: integer):
+	while {match::%{_id}%::status} is "Running":
+		loop all players:
+			{game::%loop-player%::id} is {_id}
+			gunStats(loop-player)
+		wait 1 second
+
+on right click on jungle trapdoor or jungle button:
+	cancel event if gamemode of player is not creative

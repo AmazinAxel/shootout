@@ -1,0 +1,90 @@
+function errorSound(p: player):
+	play sound "block.note_block.banjo" with pitch 0.6 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.5 to {_p}
+
+function shootoutSuccessSound(p: player):
+	play sound "block.note_block.banjo" with pitch 0.5 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.6 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+
+function altErrorSound(p: player):
+	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.6 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.5 to {_p}
+	
+function shootoutAltSuccessSound(p: player):
+	play sound "block.note_block.banjo" with pitch 0.5 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.6 to {_p}
+
+function duelIntroSequence(p: player):
+	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.7 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+	wait 10 ticks
+	play sound "block.note_block.banjo" with pitch 0.7 to {_p}
+	wait 15 ticks
+	play sound "block.note_block.banjo" with pitch 0.6 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.7 to {_p}
+	wait 2 ticks
+	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+
+function exitMatch(p: player, id: integer = -1):
+	# The ID is only used to determine if the "You left the queue" message should be shown
+	{game::%{_p}%} is not "Spectator" # Doesn't apply to spectators
+	if {game::%{_p}%} contains "1v1" or "2v2":
+		{match::%{game::%{_p}%::id}%::status} is "Running" or "Starting" # Doesn't do anything when a game is ending
+		strike lightning effect at {_p}
+		matchEndCheck({game::%{_p}%::id})
+	else if {game::%{_p}%} is "FFA":
+		loop all players:
+			{game::%loop-player%} is "FFA"
+			message "&6&l%{_p}% &6ʜᴀѕ ʟᴇꜰᴛ ᴛʜᴇ ᴅᴜᴇʟɪɴɢ ᴀʀᴇɴᴀ!" to loop-player
+
+	else if {game::%{_p}%} is "Queue":
+		if {game::%{_p}%::id} is {_id}:
+			message "&6ʏᴏᴜ ʟᴇꜰᴛ ᴛʜᴇ ǫᴜᴇᴜᴇ!" to {_p}
+			send action bar "&6ʏᴏᴜ ʟᴇꜰᴛ ᴛʜᴇ ǫᴜᴇᴜᴇ!" to {_p}
+			altErrorSound({_p})
+		else:
+			message "&6ʏᴏᴜ ʟᴇꜰᴛ ʏᴏᴜʀ ᴘʀᴇᴠɪᴏᴜѕ ǫᴜᴇᴜᴇ!" to {_p}
+		set {game::%{_p}%} to "Spawn"
+		set {_signID} to {game::%{_p}%::id}
+		delete {game::%{_p}%::*}
+		refreshPlayerScoreboard({_p})
+		updateTablistName({_p})
+		updateSign(block at getSignByID({_signID}), {_signID}) # Can't use {_id} for this
+
+function matchEndCheck(id: integer):
+	loop all players:
+		{game::%loop-player%::id} is {_id}
+		gamemode of loop-value is not spectator
+		add 1 to {_team%{game::team::%loop-value%}%}
+	{_team1} or {_team2} is not set # No players remaining on a team
+	endMatch({_id})
+	
+function matchEndSound(p: player):
+	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+	wait 3 ticks
+	play sound "block.note_block.banjo" with pitch 1.0 to {_p}
+	wait 3 ticks
+	play sound "block.note_block.banjo" with pitch 0.6 to {_p}
+	wait 6 ticks
+	play sound "block.note_block.banjo" with pitch 0.7 to {_p}
+	wait 3 ticks
+	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+	wait 8 ticks
+	loop 3 times:
+		play sound "block.note_block.banjo" with pitch 0.8 to {_p}
+		wait 3 ticks
+						
+on hunger meter change:
+	cancel event

@@ -219,7 +219,7 @@ on skript stop:
 	
 on skript start:
 	set {temp::serverFirstStart} to true
-	set {motd} to "&c&l(!) Shootout is undergoing maintenance!" if {motd} is not set
+	set {motd} to "&f &f &f &f Now featuring &6&l1v1&f, &6&l2v2 &fduels and &6&lFFA &fmatches!"
 	updateBossbar("Welcome to Shootout!", white)
 	set {temp::barProgress} to 100
 	createBounds() # Sets up all arena bounds

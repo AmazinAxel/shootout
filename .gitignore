@@ -9,7 +9,7 @@ banned-players.json
 commands.yml
 help.yml
 permissions.yml
-version_history.yml
+version_history.json
 whitelist.json
 bStats/
 libraries/

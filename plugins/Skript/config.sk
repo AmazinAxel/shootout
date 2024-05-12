@@ -57,7 +57,7 @@ release channel: stable
 # Initial value of this depends on the Skript version you first installed; it was 'stable'.
 
 enable effect commands: true
-effect command token: !!
+effect command token: !
 # If 'enable effect commands' is set to true, chat messages starting with the 'effect command token' will be interpreted as effects and executed.
 # The token can be longer than a single character, but it should not start with '/' as that starts a command.
 # A player needs the permission "skript.effectcommands" to use such commands,
@@ -329,7 +329,7 @@ databases:
 		
 		# ==== Settings that should not be changed ====
 		
-version: 2.8.0
+version: 2.8.5
 # DO NOT CHANGE THIS VALUE MANUALLY!
 # This saves for which version of Skript this configuration was written for.
 # If it does not match the version of the .jar file then the config will be updated automatically.

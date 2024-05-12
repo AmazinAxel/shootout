@@ -5,7 +5,7 @@ command /rules:
 	trigger:
 		play sound "entity.illusioner.cast_spell" to player
 		set {_rules} to a written book
-		set page 1 of book {_rules} to text component of "&7&lEggDuels &7Rules: %newline%&rHey, %player%! %newline%%newline% We need you to follow some basic rules so that everyone can have an awesome experience here. %newline%%newline% Click the 'next page' button when you're ready."
+		set page 1 of book {_rules} to text component of "&7&lShootout &7Rules: %newline%&rHey, %player%! %newline%%newline% We need you to follow some basic rules so that everyone can have an awesome experience here. %newline%%newline% Click the 'next page' button when you're ready."
 		
 		set page 2 of book {_rules} to text component of "&lBasic rules: %newline%&rThese are mainly just basic guidelines, but can be punishable if abused. %newline%%newline% &7Don't swear. %newline% Don't spam chat. %newline% Don't advertise. %nl%%nl% Be a good sport %nl% and &njust be nice!"
 		
@@ -16,7 +16,7 @@ command /rules:
 		set page 5 of book {_rules} to text component of "&lNotice: %newline%&rStaff members reserve the right to punish (IP ban, kick, mute) any players that make the game less enjoyable to other players. PvP-dueling games can be toxic, so report any overly-toxic players on our Discord."
 		
 		set book author of {_rules} to "AmazinAxel"
-		set book title of {_rules} to "EggDuels Rulebook"
+		set book title of {_rules} to "Shootout Rulebook"
 		open book {_rules} to player
 
 command /help:
@@ -34,7 +34,7 @@ command /commands:
 		message "&6<command:/afk>/afk &f- ʟᴇᴛѕ ᴏᴛʜᴇʀѕ ᴋɴᴏᴡ ᴛʜᴀᴛ ʏᴏᴜ'ʀᴇ ᴀꜰᴋ"
 		message "&6<command:/discord>/discord &f- ɢɪᴠᴇѕ ʏᴏᴜ ᴛʜᴇ ɪɴᴠɪᴛᴇ ʟɪɴᴋ ᴛᴏ ᴏᴜʀ ᴅɪѕᴄᴏʀᴅ ѕᴇʀᴠᴇʀ"
 		message "&6<command:/apply>/apply &f- ɢɪᴠᴇѕ ʏᴏᴜ ᴛʜᴇ ѕᴛᴀꜰꜰ ᴀᴘᴘʟɪᴄᴀᴛɪᴏɴ ʟɪɴᴋ"
-		message "&6<command:/rules>/rules &f- ѕʜᴏᴡѕ ᴀʟʟ ᴇɢɢᴅᴜᴇʟѕ ѕᴇʀᴠᴇʀ ʀᴜʟᴇѕ"
+		message "&6<command:/rules>/rules &f- ѕʜᴏᴡѕ ᴀʟʟ ѕʜᴏᴏᴛᴏᴜᴛ ѕᴇʀᴠᴇʀ ʀᴜʟᴇѕ"
 		message ""
 
 command /ad [<string>]:
@@ -48,7 +48,7 @@ command /ad [<string>]:
 		message ""
 		set {_t} to text component from "             &6&k|| &6&lClick me to copy an /ad template! &k||"
 		set hover event of {_t} to a new hover event showing "&6&lClick me to copy!"
-		set click event of {_t} to a new click event to suggest command "/ad EggDuels >> Custom, competitive PvP-dueling minigames with guns and more!"
+		set click event of {_t} to a new click event to suggest command "/ad Shootout >> Custom, competitive PvP dueling game with guns and more!"
 		send component {_t} to player
 		message ""
 
@@ -117,8 +117,8 @@ command /discord:
 	description: Gets the link to our Discord server.
 	trigger:
 		set {_t} to text component from "%nl%&3 > Join Discord Server%nl%"
-		set hover event of {_t} to a new hover event showing "&fClick me to join the Egg Development community!"
-		set click event of {_t} to a new click event to open url "https://discord.gg/4XQEMKjtaj"
+		set hover event of {_t} to a new hover event showing "&fClick me to join the Permafrost community!"
+		set click event of {_t} to a new click event to open url "https://discord.com/invite/dhAmPj5yUt"
 		play sound "entity.illusioner.cast_spell" to player
 		message "%nl%&9&l DISCORD SERVER"
 		message "&f Join our friendly Discord community for updates, sneak peeks, events, and more. Plus, check out our other games!"
@@ -135,7 +135,7 @@ command /about:
 	aliases: info, help
 	cooldown: 3 seconds
 	trigger:
-		message "%nl% &3&lABOUT EGGDUELS%nl% &fWelcome to &3EggDuels, &ra intense, thrilling, and competitive server dedicated to providing you with a fun and unique PvP experience."
+		message "%nl% &3&lABOUT SHOOTOUT%nl% &fWelcome to &3Shootout, &ra intense, thrilling, and competitive server dedicated to providing you with a fun and unique PvP experience."
 		message " &fWe offer various and fun PvP dueling gamemodes, such as 1v1 and 2v2 Shootout duels and FistSumo."
 		message " &fThis server was developed by an indie team &o(1 person!)&f, so your support means a lot to us! Please provide bug reports & glitches to our Issues channel on our <command:/discord>&nDiscord server."
 		message "%nl% &6We hope you'll have a fun and exciting experience! &lEnjoy!%nl%"

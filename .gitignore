@@ -1,4 +1,28 @@
+# Ignore a bunch of server files that aren't required
 usercache.json
 logs/latest.log
 plugins/NoCheatPlus/nocheatplus.log
 plugins/NoCheatPlus/nocheatplus.log.lck
+versions/
+banned-ips.json
+banned-players.json
+commands.yml
+help.yml
+permissions.yml
+version_history.yml
+whitelist.json
+bStats/
+libraries/
+cache/
+logs/
+FastAsyncWorldEdit/
+config/
+
+# World data
+Game/data/
+Game/datapacks/
+
+
+# DON'T save server variable stuff
+backups/
+variables.csv

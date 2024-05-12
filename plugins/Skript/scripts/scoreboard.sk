@@ -1,4 +1,4 @@
-# This script handles the scoreboard for all players on EggDuels
+# This script handles the scoreboard for all players on Shootout
 function refreshPlayerScoreboard(p: player):
 	toggle {_p}'s scoreboard on
 	clear scoreboard of {_p}
@@ -40,6 +40,10 @@ function refreshPlayerScoreboard(p: player):
 		set line 14 of {_p}'s scoreboard to "&6&l Spawn"
 		set line 13 of {_p}'s scoreboard to "&f  ᴄʟɪᴄᴋ ᴀɴʏ ѕɪɢɴ ᴛᴏ"
 		set line 12 of {_p}'s scoreboard to "&f  ᴊᴏɪɴ ᴀ ᴅᴜᴇʟ"
+	else if {game::%{_p}%} is "Spectator":
+		set line 14 of {_p}'s scoreboard to "&6&l Spectating"
+		set line 13 of {_p}'s scoreboard to "&f  ᴄᴜʀʀᴇɴᴛʟʏ ѕᴘᴇᴄᴛᴀᴛɪɴɢ"
+		set line 12 of {_p}'s scoreboard to "&f  ᴀ ᴍᴀᴛᴄʜ!"
 	
 	set line 11 of {_p}'s scoreboard to ""
 	set line 10 of {_p}'s scoreboard to "&6&l %player count% ᴏɴʟɪɴᴇ:"

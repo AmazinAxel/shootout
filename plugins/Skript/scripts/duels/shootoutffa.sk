@@ -70,6 +70,7 @@ on death:
 	wait 2 ticks
 	teleport victim to location(-128.5, 32, -18.5, "Game", 45)
 	set {temp::%victim%::FFASpawn} to true
+	delete {temp::%victim%::stick} # Fix stick bug
 	loopJump(victim)
 
 on right click on chest or barrel or dark oak door or spruce door:

@@ -1,10 +1,10 @@
 # add XP bar for level
 
 function serverName() :: string:
-	return "&f&lEgg&6&lDuels"
+	return "&6&lShootout"
 
 function getVer() :: string:
-	return "v1.0"
+	return "v1.1"
 
 function spawn(p: player, onjoin: boolean = false):
 	if {game::%{_p}%} is "AFK":
@@ -28,29 +28,29 @@ function spawn(p: player, onjoin: boolean = false):
 	send actionbar " " to {_p} # Clears their actionbar
 	wait 15 ticks if {_onjoin} is true
 	loop 2 times:
-		send title "&6Welcome to &6&lEggDuels!" with subtitle "" to {_p}
+		send title "&6Welcome to &6&lShootout!" with subtitle "" to {_p}
 		play sound "block.note_block.banjo" with pitch 1.0 to {_p}
 		wait 3 ticks
 		exit if {game::%{_p}%} is not "Spawn"
-		send title "&cWelcome to &c&lEggDuels!" to {_p}
+		send title "&cWelcome to &c&lShootout!" to {_p}
 		play sound "block.note_block.banjo" with pitch 1.2 to {_p}
 		wait 3 ticks
 		exit if {game::%{_p}%} is not "Spawn"
-	send title "&6Welcome to &6&lEggDuels!" to {_p}
+	send title "&6Welcome to &6&lShootout!" to {_p}
 	play sound "block.note_block.banjo" with pitch 1.0 to {_p}
 	wait 15 ticks
 	exit if {game::%{_p}%} is not "Spawn"
-	send title "&cWelcome to &c&lEggDuels!" to {_p}
+	send title "&cWelcome to &c&lShootout!" to {_p}
 	send subtitle "&cᴄᴜѕᴛᴏᴍ ᴅᴜᴇʟ-ᴏʀɪᴇɴᴛᴇᴅ ᴘᴠᴘ!" to {_p}
 	play sound "block.note_block.banjo" with pitch 0.7 to {_p}
 	wait 7 ticks
 	exit if {game::%{_p}%} is not "Spawn"
-	send title "&6Welcome to &6&lEggDuels!" to {_p}
+	send title "&6Welcome to &6&lShootout!" to {_p}
 	send subtitle "&6&lᴄᴜѕᴛᴏᴍ ᴅᴜᴇʟ-ᴏʀɪᴇɴᴛᴇᴅ ᴘᴠᴘ!" to {_p}
 	play sound "block.note_block.banjo" with pitch 0.8 to {_p}
 	wait 7 ticks
 	exit if {game::%{_p}%} is not "Spawn"
-	send title "&cWelcome to &c&lEggDuels!" to {_p}
+	send title "&cWelcome to &c&lShootout!" to {_p}
 	send subtitle "&cᴄᴜѕᴛᴏᴍ ᴅᴜᴇʟ-ᴏʀɪᴇɴᴛᴇᴅ ᴘᴠᴘ!" to {_p}
 	play sound "block.note_block.banjo" with pitch 0.6 to {_p}
 
@@ -103,7 +103,7 @@ on quit:
 function updateTabList():
 	wait 1 tick
 	loop all players: # Work-around for setting all player's tablist
-		set loop-player's tab list footer to "&fᴘʟᴀʏᴇʀѕ ᴏɴʟɪɴᴇ: &7%number of all players%/%max players% &f| &7/help%newline%&3&oᴄʀᴇᴀᴛᴇᴅ ʙʏ ᴇɢɢ ᴅᴇᴠᴇʟᴏᴘᴍᴇɴᴛ &9(/discord)"
+		set loop-player's tab list footer to "&fᴘʟᴀʏᴇʀѕ ᴏɴʟɪɴᴇ: &7%number of all players%/%max players% &f| &7/help%newline%&3&oᴄʀᴇᴀᴛᴇᴅ ʙʏ ᴘᴇʀᴍᴀꜰʀᴏѕᴛ ɢᴀᴍᴇѕ &9(/discord)"
 
 function updateBossbar(text: string, color: color):
 	remove all players from {server::bar}
@@ -116,7 +116,7 @@ command /rank [<player>] [<text>]:
 	permission: op
 	trigger:
 		if arg-1 or arg-2 is not set:
-			message "&6&lEggDuels Ranks:"
+			message "&6&lShootout Ranks:"
 			message "&cAdmin"
 			message "&5Moderator"
 			message "&aHelper"
@@ -174,15 +174,17 @@ on chat:
 		set {_color} to "&7"
 		
 	# Create ping
-	loop all players:
-		message contains loop-player's name
-		play sound "block.note_block.chime" with pitch 1.7 to loop-player if {settings::%loop-player%::pingSound} is not false
-		if message contains "@":
-			message "%nl% &6&lʜᴇʟᴘꜰᴜʟ ᴛɪᴘ! &fYou don't need to put an '@' before a player's name. Simply type their name to ping them!%nl%"
-			replace all "@" in message with ""
+	if message is not "./amazinaxel": # Fixes annoying bug when telling ppl who made it
+		loop all players:
+			message contains loop-player's name
+		
+			play sound "block.note_block.chime" with pitch 1.7 to loop-player if {settings::%loop-player%::pingSound} is not false
+			if message contains "@":
+				message "%nl% &6&lʜᴇʟᴘꜰᴜʟ ᴛɪᴘ! &fYou don't need to put an '@' before a player's name. Simply type their name to ping them!%nl%"
+				replace all "@" in message with ""
 
-		replace every loop-player's name with "&9@%loop-player%%{_color}%" in message
-		send "&f%loop-player% &7is AFK and may not reply to your ping." to player if {game::%loop-player%} is "AFK"
+			replace every loop-player's name with "&9@%loop-player%%{_color}%" in message
+			send "&f%loop-player% &7is AFK and may not reply to your ping." to player if {game::%loop-player%} is "AFK"
 	
 	if message contains "discord":
 		replace all "discord" in message with "&9Discord%{_color}%"
@@ -217,8 +219,8 @@ on skript stop:
 	
 on skript start:
 	set {temp::serverFirstStart} to true
-	set {motd} to "&c&l(!) EggDuels is undergoing maintenance!" if {motd} is not set
-	updateBossbar("Welcome to EggDuels!", white)
+	set {motd} to "&c&l(!) Shootout is undergoing maintenance!" if {motd} is not set
+	updateBossbar("Welcome to Shootout!", white)
 	set {temp::barProgress} to 100
 	createBounds() # Sets up all arena bounds
 	resetSigns() # Resets sign text for all signs
@@ -324,5 +326,5 @@ command reloadscripts:
 		
 on server list ping:
 	set the motd to "&c&l🗡 %serverName()% &f&l>> &6Duel &for &cdie &fin thrilling gunfights! %nl%&f%colored {motd}%"
-	set the version string to "EggDuels"
+	set the version string to "Shootout"
 	set the hover list to all players

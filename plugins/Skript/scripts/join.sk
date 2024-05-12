@@ -3,7 +3,7 @@ on player join:
 		set join message to "&a&l + &8| %{rank::%player%::prefix}% &f%player% &7ʜᴀѕ ᴊᴏɪɴᴇᴅ ᴛʜᴇ ѕᴇʀᴠᴇʀ!"
 	else: # Slightly different name coloring for non-staff members
 		set join message to "&a&l + &8| &7&lPlayer &7%player% &7ʜᴀѕ ᴊᴏɪɴᴇᴅ ᴛʜᴇ ѕᴇʀᴠᴇʀ!"
-	set tab list header of player to "   ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ %serverName()%! &8(/join EggDuels)   "
+	set tab list header of player to "   ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ %serverName()%! &8(/join Shootout)   "
 	spawn(player, true)
 	updateTabList()
 	refreshScoreboard()
@@ -20,16 +20,16 @@ on player join:
 	if {temp::serverFirstStart} is true:
 		delete {temp::serverFirstStart}
 		wait 10 ticks # Sound effect is wierd without this
-		message "%nl% &6&lʏᴏᴜ ѕᴛᴀʀᴛᴇᴅ ᴇɢɢᴅᴜᴇʟѕ!"
+		message "%nl% &6&lʏᴏᴜ ѕᴛᴀʀᴛᴇᴅ ѕʜᴏᴏᴛᴏᴜᴛ!"
 		message "&f Hey! Thanks for joining! It looks like you started the server."
 		message "&7 Another player is required to start a duel."
 		message "&f You may ask our &nDiscord community&f if they'd like to join you!"
 		message "&7 Additionally, using &n/afk&7 will notify you when any player joins."
-		message "&f Anyways, have fun playing EggDuels!"
+		message "&f Anyways, have fun playing Shootout!"
 		message ""
 		play sound "block.note_block.pling" with pitch 1.7 to player
 		wait 2 ticks
 		play sound "block.note_block.pling" with pitch 2 to player
 
 on first join:
-	set join message to "&2&l + &8| &7Welcome &l%player% &7to EggDuels!" # Purposeful different plus color
+	set join message to "&2&l + &8| &7Welcome &l%player% &7to Shootout!" # Purposeful different plus color

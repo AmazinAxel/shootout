@@ -18,7 +18,7 @@ on right click:
 	set {temp::%player%::gunCooldown} to true 
 	if event-item is a wooden hoe named "&7Python Revolver": # Python
 		play sound "minecraft:block.bamboo.hit" with volume 1 at player
-		raycast(player, 2, 1.5, 0.2, 0.006) # dmg, spread, dropoff, dmgDropoff
+		raycast(player, 2.5, 1.5, 0.2, 0)  # dmg, spread, dropoff, dmgDropoff
 		push player backwards at speed 0.1
 		gunCooldown(player, 9)
 	
@@ -31,7 +31,7 @@ on right click:
 				raycast(player, 0.9, 8, 0.25, 0) # dmg, spread, dropoff, dmgDropoff
 		push player backwards at speed 0.9
 		gunCooldown(player, 9)
-				
+
 	else if event-item is a stone hoe named "&7Hunting Rifle": # Huntin' Rifle
 		play sound "block.netherite_block.hit" with volume 1 and pitch 1.5 at player
 		raycast(player, 4, 0, 0.01, -0.035) # dmg, spread, dropoff, dmgDropoff

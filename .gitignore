@@ -1,5 +1,8 @@
 # Ignore a bunch of server files that aren't required
 usercache.json
+eula.txt
+ops.json
+wepif.yml
 logs/latest.log
 plugins/NoCheatPlus/nocheatplus.log
 plugins/NoCheatPlus/nocheatplus.log.lck

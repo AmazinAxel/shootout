@@ -49,7 +49,7 @@ on inventory click:
 on damage:
 	{game::%victim%} contains "Shootout" or "FFA"
 	exit if attacker's tool is wooden sword or stick # Allow wooden swords & sticks to be used as weapons in game
-	cancel event if attacker is player # No melee hitting!
+	cancel event if attacker is player # No melee hitting
 	cancel event if damage cause is fall # No fall damage
 
 function giveKit(p: player):

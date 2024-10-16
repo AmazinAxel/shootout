@@ -56,6 +56,7 @@ function exitMatch(p: player, id: integer = -1):
 			altErrorSound({_p})
 		else:
 			message "&6ʏᴏᴜ ʟᴇꜰᴛ ʏᴏᴜʀ ᴘʀᴇᴠɪᴏᴜѕ ǫᴜᴇᴜᴇ!" to {_p}
+		
 		set {game::%{_p}%} to "Spawn"
 		set {_signID} to {game::%{_p}%::id}
 		delete {game::%{_p}%::*}
@@ -85,6 +86,3 @@ function matchEndSound(p: player):
 	loop 3 times:
 		play sound "block.note_block.banjo" with pitch 0.8 to {_p}
 		wait 3 ticks
-						
-on hunger meter change:
-	cancel event

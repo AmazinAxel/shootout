@@ -21,7 +21,7 @@ function spawn(p: player, onjoin: boolean = false):
 	extinguish {_p}
 	clear all potion effects of {_p}
 	clear {_p}'s inventory
-	teleport {_p} to location(0.5, 60, 0.5, "Game")
+	teleport {_p} to location(0.5, 60, 0.5, "Shootout")
 	play 2 cloud 2 blocks above {_p} to all players
 	refreshScoreboard()
 	console command "/title %{_p}% times 0 60 5" # Sets default title timings
@@ -74,7 +74,7 @@ command /spawn [<string>]:
 		spawn(player)
 
 on food bar change:
-	cancel event if {game::%player%} is "Spawn" or "Queue"
+	cancel event
 
 on damage:
 	cancel event if {game::%victim%} is "Spawn" or "Queue"
@@ -174,17 +174,16 @@ on chat:
 		set {_color} to "&7"
 		
 	# Create ping
-	if message is not "./amazinaxel": # Fixes annoying bug when telling ppl who made it
-		loop all players:
-			message contains loop-player's name
-		
-			play sound "block.note_block.chime" with pitch 1.7 to loop-player if {settings::%loop-player%::pingSound} is not false
-			if message contains "@":
-				message "%nl% &6&lʜᴇʟᴘꜰᴜʟ ᴛɪᴘ! &fYou don't need to put an '@' before a player's name. Simply type their name to ping them!%nl%"
-				replace all "@" in message with ""
+	loop all players:
+		message contains loop-player's name
+	
+		play sound "block.note_block.chime" with pitch 1.7 to loop-player if {settings::%loop-player%::pingSound} is not false
+		if message contains "@":
+			message "%nl% &6&lʜᴇʟᴘꜰᴜʟ ᴛɪᴘ! &fYou don't need to put an '@' before a player's name. Simply type their name to ping them!%nl%"
+			replace all "@" in message with ""
 
-			replace every loop-player's name with "&9@%loop-player%%{_color}%" in message
-			send "&f%loop-player% &7is AFK and may not reply to your ping." to player if {game::%loop-player%} is "AFK"
+		replace every loop-player's name with "&9@%loop-player%%{_color}%" in message
+		send "&f%loop-player% &7is AFK and may not reply to your ping." to player if {game::%loop-player%} is "AFK"
 	
 	if message contains "discord":
 		replace all "discord" in message with "&9Discord%{_color}%"
@@ -253,17 +252,10 @@ every 2 ticks:
 on player move:
 	{match::%{game::%player%::id}%::frozen} is set
 	gamemode of player is not spectator
-	#distance between past event-location and event-location is not 0.1 # Exactly how much is force-moved, player didn't do this
 	cancel event
-
-#on jump:
-#	{match::%{game::%player%::id}%::frozen} is set
-#	gamemode of player is not spectator
-#	cancel event
 		
 on inventory click: # Prevent taking off armor
-	clicked slot is between 36 and 39
-	cancel event
+	cancel event if clicked slot is between 36 and 39
 
 function sendError(p: player, msg: string, isAlt: boolean = false):
 	set {_msg} to "&c%{_msg}%"
@@ -283,46 +275,6 @@ on block break:
 
 on block place:
 	cancel event if gamemode of player is not creative 
-	
-on skript start:
-	wait 6 hours
-	broadcast "&c&lʀᴇѕᴛᴀʀᴛ >> &fThe planned daily restart will commence in 30 minutes."
-	wait 20 minutes
-	broadcast "&c&lʀᴇѕᴛᴀʀᴛ >> &fThe planned daily restart will commence in 10 minutes."
-	wait 8 minutes
-	broadcast "&c&lʀᴇѕᴛᴀʀᴛ >> &fThe planned daily restart will commence in 2 minutes."
-	serverRestart()
-
-command planRestart:
-	permission: op
-	trigger:
-		serverRestart()
-
-function serverRestart():
-	set {_countdown} to 10
-	broadcast "&c&l%nl% ᴘʟᴀɴɴᴇᴅ ѕᴇʀᴠᴇʀ ʀᴇѕᴛᴀʀᴛ%nl% &fThe server will restart in 10 seconds! You can rejoin after the restart.%nl%"
-	loop {_countdown} times:
-		if {_countdown} is 1:
-			set {_s} to ""
-		else:
-			set {_s} to "ѕ"
-		send title "&c&lServer Restart" with subtitle "&fʀᴇѕᴛᴀʀᴛɪɴɢ ɪɴ %{_countdown}% ѕᴇᴄᴏɴᴅ%{_s}%..." to all players
-		wait 1 second
-		remove 1 from {_countdown}
-	send title "&c&lRESTARTING..." with subtitle "&cᴘʟᴇᴀѕᴇ ʀᴇᴊᴏɪɴ!" to all players
-	wait 10 ticks
-	restart server
-	
-command reloadscripts:
-	trigger:
-		broadcast "%nl% &c&lGAME RELOADING%nl% &fGame scripts are being reloaded soon to fix bugs or add features. Changes will apply immediately.%nl% &f&lYou will experience some lag.%nl%"
-		wait 2 seconds
-		send title "&6&lGAME RELOADING" with subtitle "&fʏᴏᴜ ᴡɪʟʟ ᴇxᴘᴇʀɪᴇɴᴄᴇ ʟᴀɢ!" to all players for 20 seconds with fadein 0 ticks and fadeout 10 ticks
-		wait 1 tick # This is here so players will be able to see the title
-		set {_time} to now
-		console command "sk reload scripts" # reloads ALL scripts
-		send title "&3&lReload Finished!" with subtitle "&fʏᴏᴜ ᴍᴀʏ ɴᴏᴡ ᴄᴏɴᴛɪɴᴜᴇ." to all players for 2 seconds with fadein 0 ticks and fadeout 10 ticks
-		broadcast "%nl% &fTotal time taken: &6%difference between {_time} and now%%nl%"
 		
 on server list ping:
 	set the motd to "&c&l🗡 %serverName()% &f&l>> &6Duel &for &cdie &fin thrilling gunfights! %nl%&f%colored {motd}%"

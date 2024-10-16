@@ -1,3 +1,5 @@
+# TODO use a list :facepalm:
+
 on player armor change:
 	set {temp::%player%::armor} to 0
 	if player is wearing leather helmet:

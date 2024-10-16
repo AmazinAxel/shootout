@@ -1,6 +1,3 @@
-# upgrade: minecraft:entity.husk.converted_to_zombie
-# cool sounds: block.netherite_block.fall | shroomlight | allay | goat
-
 on right click:
 	event-item is a wooden hoe or wooden shovel or stone hoe
 	{temp::%player%::reloading} is not true # Player is not reloading
@@ -44,7 +41,6 @@ on right click:
 on tool change:
 	player's held item is wooden shovel or wooden hoe or stone hoe
 	gunStats(player)
-
 
 function gunCooldown(p: player, time: number):
 	wait "%{_time}% ticks" parsed as timespan

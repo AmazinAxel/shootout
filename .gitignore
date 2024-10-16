@@ -22,9 +22,17 @@ FastAsyncWorldEdit/
 config/
 
 # World data
-Game/data/
-Game/datapacks/
+Shootout/data/
+Shootout/datapacks/
+Shootout/advancements/
+Shootout/playerdata/
+Shootout/stats/
 
+# Plugin data
+plugins/SkBee/bounds.yml
+plugins/SkBee/worlds.yml
+plugins/Skript/lang/
+plugins/Skript/features.sk
 
 # DON'T save server variable stuff
 backups/

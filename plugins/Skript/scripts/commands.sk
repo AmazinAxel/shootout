@@ -1,72 +1,18 @@
 # This file contains most basic commands that are available to all users
 
-command /rules:
-	description: Rules of the server that all players must follow.
-	trigger:
-		play sound "entity.illusioner.cast_spell" to player
-		set {_rules} to a written book
-		set page 1 of book {_rules} to text component of "&7&lShootout &7Rules: %newline%&rHey, %player%! %newline%%newline% We need you to follow some basic rules so that everyone can have an awesome experience here. %newline%%newline% Click the 'next page' button when you're ready."
-		
-		set page 2 of book {_rules} to text component of "&lBasic rules: %newline%&rThese are mainly just basic guidelines, but can be punishable if abused. %newline%%newline% &7Don't swear. %newline% Don't spam chat. %newline% Don't advertise. %nl%%nl% Be a good sport %nl% and &njust be nice!"
-		
-		set page 3 of book {_rules} to text component of "&c&lPunishable rules: %newline%&rThese rules are highly enforced. Don't break them or you will be severely punished. %newline% &7Don't hack / exploit. %newline% Don't be toxic. %nl% No racism. Keep it PG. %nl% No filter bypassing.%nl% No ban evading.%nl% &cUSE COMMON SENSE."
-		
-		set page 4 of book {_rules} to text component of "&lGame Throwing: %nl%&0Game throwing is where a player sabotages their team purposefully. &nThis is not allowed.&0 Trolling with teammates are allowed to a certain extent."
-
-		set page 5 of book {_rules} to text component of "&lNotice: %newline%&rStaff members reserve the right to punish (IP ban, kick, mute) any players that make the game less enjoyable to other players. PvP-dueling games can be toxic, so report any overly-toxic players on our Discord."
-		
-		set book author of {_rules} to "AmazinAxel"
-		set book title of {_rules} to "Shootout Rulebook"
-		open book {_rules} to player
-
-command /help:
-	trigger:
-		message "%nl% %serverName()% &f&lHelp:%nl% &chelp coming soon (im too lazy to add a help message hehe)"
-
-command /commands:
-	trigger:
-		message ""
-		message "                  %serverName()% &fBasic Commands:"
-		message ""
-		message "&6<command:/help>/help &f- ᴘʀᴏᴠɪᴅᴇѕ ʜᴇʟᴘ ᴀʙᴏᴜᴛ ᴏᴜʀ ѕᴇʀᴠᴇʀ"
-		message "&6<command:/about>/about &f- ᴘʀᴏᴠɪᴅᴇѕ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ᴀʙᴏᴜᴛ ᴏᴜʀ ѕᴇʀᴠᴇʀ"
-		message "&6<command:/ping>/ping &f- ʀᴇᴛᴜʀɴѕ ѕᴇʀᴠᴇʀ ᴄᴏɴɴᴇᴄᴛɪᴏɴ ѕᴛᴀᴛᴜѕ"
-		message "&6<command:/afk>/afk &f- ʟᴇᴛѕ ᴏᴛʜᴇʀѕ ᴋɴᴏᴡ ᴛʜᴀᴛ ʏᴏᴜ'ʀᴇ ᴀꜰᴋ"
-		message "&6<command:/discord>/discord &f- ɢɪᴠᴇѕ ʏᴏᴜ ᴛʜᴇ ɪɴᴠɪᴛᴇ ʟɪɴᴋ ᴛᴏ ᴏᴜʀ ᴅɪѕᴄᴏʀᴅ ѕᴇʀᴠᴇʀ"
-		message "&6<command:/apply>/apply &f- ɢɪᴠᴇѕ ʏᴏᴜ ᴛʜᴇ ѕᴛᴀꜰꜰ ᴀᴘᴘʟɪᴄᴀᴛɪᴏɴ ʟɪɴᴋ"
-		message "&6<command:/rules>/rules &f- ѕʜᴏᴡѕ ᴀʟʟ ѕʜᴏᴏᴛᴏᴜᴛ ѕᴇʀᴠᴇʀ ʀᴜʟᴇѕ"
-		message ""
-
-command /ad [<string>]:
-	trigger:
-		if arg-1 is set:
-			set {_t} to text component from "%nl%&3&l     Not here, silly! &3Go to the Xenon lobby to send ads.%nl%"
-			set hover event of {_t} to a new hover event showing "&3&lClick me to go to the Xenon lobby!"
-			set click event of {_t} to a new click event to run command "/hub"
-			send component {_t} to player
-			exit
-		message ""
-		set {_t} to text component from "             &6&k|| &6&lClick me to copy an /ad template! &k||"
-		set hover event of {_t} to a new hover event showing "&6&lClick me to copy!"
-		set click event of {_t} to a new click event to suggest command "/ad Shootout >> Custom, competitive PvP dueling game with guns and more!"
-		send component {_t} to player
-		message ""
-
-		
 command /afk:
-	description: Lets other players know that you're AFK and can't participate.
 	cooldown: 5 seconds
 	cooldown message: &c&l (!) &cPlease wait before toggling your AFK status.
 	trigger:
 		if {game::%player%} is not "Spawn" or "AFK":
-			sendError(player, "You must be at spawn to become AFK.")
+			sendError(player, "You must be at spawn to become AFK")
 			exit
 		if {game::%player%} is "AFK":
 			message "&f%player% &7ɪѕ ɴᴏ ʟᴏɴɢᴇʀ ᴀꜰᴋ." to all players
 			set {game::%player%} to "Spawn"
 			spawn(player)
 			exit
-		message "&f%player% &7ɪѕ ɴᴏᴡ ᴀꜰᴋ." to all players
+		message "&f%player% &7ɪѕ ɴᴏᴡ ᴀꜰᴋ" to all players
 		clear inventory of player
 		updateTablistName(player)
 		send title "You are &6&lAFK" with subtitle "ʀᴜɴ &6/ᴀꜰᴋ &fᴀɢᴀɪɴ ᴛᴏ ɢᴏ ʙᴀᴄᴋ." for 1000 seconds with fadein 10 ticks and fadeout 1000 ticks
@@ -75,7 +21,7 @@ command /afk:
 		set {game::%player%} to "AFK"
 		refreshScoreboard()
 		updateTablistName(player)
-		teleport player to location(0.5, 67, 0.5, "Game", 0, 90)
+		teleport player to location(0.5, 67, 0.5, "Shootout", 0, 90)
 		hide player from all players
 		loop 1200 times: # 20 minutes in seconds
 			exit if {game::%player%} is not "AFK"
@@ -118,35 +64,11 @@ command /discord:
 	trigger:
 		set {_t} to text component from "%nl%&3 > Join Discord Server%nl%"
 		set hover event of {_t} to a new hover event showing "&fClick me to join the Permafrost community!"
-		set click event of {_t} to a new click event to open url "https://discord.com/invite/dhAmPj5yUt"
+		set click event of {_t} to a new click event to open url "https://discord.gg/mmhevxcFnM"
 		play sound "entity.illusioner.cast_spell" to player
 		message "%nl%&9&l DISCORD SERVER"
 		message "&f Join our friendly Discord community for updates, sneak peeks, events, and more. Plus, check out our other games!"
 		send component {_t} to player
-				
-command /amazinaxel:
-	description: (shameful self promo...)
-	trigger:
-		play sound "entity.illusioner.prepare_mirror" to player
-		message "%nl% &3&kI &3That's me, the owner of this server, if you were wondering.%nl%"
-
-command /about:
-	description: About us
-	aliases: info, help
-	cooldown: 3 seconds
-	trigger:
-		message "%nl% &3&lABOUT SHOOTOUT%nl% &fWelcome to &3Shootout, &ra intense, thrilling, and competitive server dedicated to providing you with a fun and unique PvP experience."
-		message " &fWe offer various and fun PvP dueling gamemodes, such as 1v1 and 2v2 Shootout duels and FistSumo."
-		message " &fThis server was developed by an indie team &o(1 person!)&f, so your support means a lot to us! Please provide bug reports & glitches to our Issues channel on our <command:/discord>&nDiscord server."
-		message "%nl% &6We hope you'll have a fun and exciting experience! &lEnjoy!%nl%"
-		
-command /apply:
-	aliases: applications
-	trigger:
-		message ""
-		message " &c&lSTAFF APPS CLOSED! %nl% &fGet notified of when we're accepting new staff on our <command:/discord>&nDiscord server."
-		#message "&aApply for staff here: <link:https://amazinaxel.com>&c[Currently not accepting new staff members, try again later!]"
-		message ""
 
 command /ping:
 	aliases: tps
@@ -160,7 +82,7 @@ command /ping:
 		else if player's ping is between 150 and 200:
 			message "&lYour Ping: &e%player's ping%ms &o(Slow)"
 		else if player's ping is above 200:
-			message "&lYour Ping: &c%player's ping%ms &o(Very Bad)"
+			message "&lYour Ping: &c%player's ping%ms &o(Poor)"
 			
 		# Give TPS
 		if tps from last 1 minute is greater than 19.99:
@@ -172,30 +94,21 @@ command /ping:
 		else if tps from last 1 minute is between 19.90 and 19.60:
 			message "&lServer TPS: &e%tps from last 1 minute% &o(Slow)"
 		else if tps from last 1 minute is below 19.60:
-			message "&lServer TPS: &c%tps from last 1 minute% &o(Very Bad)"
+			message "&lServer TPS: &c%tps from last 1 minute% &o(Poor)"
 		message ""
 			
 		# Give conclusion
 		if player's ping is less than 150:	
 			if tps from last 1 minute is greater than 19.95:
-				message "&aYou shouldn't be experiencing any lag on the server. Your ping and the server's TPS both seem very good."
+				message "&aYou shouldn't experience any lag on the server. Your ping and the server TPS are very good."
 				exit
 				
 		if player's ping is greater than 150:
 			if tps from last 1 minute is greater than 19.95:
-				message "&eIt looks like your ping is much higher than the acceptable standard, but it looks like there isn't any lag on the server. This means you are likely to experience lag, but it doesn't seem to be the server's fault."
-				exit
-				
-		if player's ping is greater than 150:
-			if tps from last 1 minute is less than 19.95:
-				message "&cIt looks like the server is laggy, which could be causing your high ping. If this lag continues, please notify a staff member."
+				message "&eYour ping is higher than the acceptable standard, but it looks like there isn't any lag on the server. You are likely to experience some lag."
 				exit
 				
 		if tps from last 1 minute is less than 19.95:
-			if player's ping is less than 150:
-				message "&cIt seems like the server is laggy, but you still have good ping. If the lag continues, please notify a staff member."
-				exit
-
-command /plugins:
-	trigger:
-		message "%nl% &6&lOUR PLUGINS%nl% &f&nEverything is custom coded.&f We use &lSkript &fand &lSkBee &fto make our game work.%nl%%nl% &fWe use our in-house custom Java plugins for server and chat protection.%nl%"
+			message "&cThe server seems to be laggy. If this lag continues, please notify a staff member."
+			exit
+				

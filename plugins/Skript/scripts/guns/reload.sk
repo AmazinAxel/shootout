@@ -1,5 +1,3 @@
-# This script handles the Shootout Gun Reloading system (80% optimized, very clean code)
-
 on left click:
 	{temp::%player%::reloading} is not true
 	{match::%{game::%player%::id}%::reloadLock} is not true
@@ -63,7 +61,7 @@ function reloadError(p: player):
 		exit
 	sendError({_p}, "You have no ammo left!")
 	send title "&6&lNo Ammo Left!" with subtitle "&6ʏᴏᴜ'ᴠᴇ ʀᴇᴄᴇɪᴠᴇᴅ ᴀ ѕᴛɪᴄᴋ!" to {_p} for 2 seconds
-	message "&6&lNo Ammo >> &6ʏᴏᴜ'ᴠᴇ ʀᴇᴄɪᴇᴠᴇᴅ ᴀ ѕᴛɪᴄᴋ!" to {_p}
+	message "&6&lNo Ammo >> &6ʏᴏᴜ ʀᴇᴄɪᴇᴠᴇᴅ ᴀ ѕᴛɪᴄᴋ!" to {_p}
 	give {_p} stick of sharpness 3 named "&6Sharp Stick" with lore "&7I found this off the ground..." and "&7It seems sharp enough," and "&7hopefully it's enough to finish" and "&7the job..."
 	remove 1 wooden hoe from {_p}
 	remove 1 stone hoe from {_p}

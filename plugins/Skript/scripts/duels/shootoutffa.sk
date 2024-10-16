@@ -5,7 +5,7 @@ on right click on sign:
 		3rd line of clicked sign is "&c&lDuel Arena"
 		exitMatch(player)
 		set {game::%player%} to "FFA"
-		teleport player to location(-128.5, 32, -18.5, "Game", 45)
+		teleport player to location(-128.5, 32, -18.5, "Shootout", 45)
 		shootoutSuccessSound(player)
 		show 100 cloud 2 blocks above player to all players
 		set {temp::%player%::FFASpawn} to true
@@ -33,7 +33,7 @@ function loopJump(p: player):
 		if {game::%{_p}%} is not "FFA":	
 			delete {temp::%{_p}%::FFASpawn}
 			exit
-		randomTP({_p}) if distance between {_p}'s location and location(-128.5, 32, -18.5, "Game") is greater than 4.5
+		randomTP({_p}) if distance between {_p}'s location and location(-128.5, 32, -18.5, "Shootout") is greater than 4.5
 			
 		wait 5 ticks
 
@@ -42,7 +42,7 @@ function randomTP(p: player):
 	set {temp::%{_p}%::reloading} to true
 	
 	# RANDOM TP:
-	set {_locations::*} to location(-128.5, 37, -4.5, "Game", 90) and location(-172.5, 40, -1.5, "Game", -90) and location(-134.5, 34, 22.5, "Game", 90) and location(-153.5, 27, 39.5, "Game", 180) and location(-151.5, 27, -16.5, "Game", 0)
+	set {_locations::*} to location(-128.5, 37, -4.5, "Shootout", 90) and location(-172.5, 40, -1.5, "Shootout", -90) and location(-134.5, 34, 22.5, "Shootout", 90) and location(-153.5, 27, 39.5, "Shootout", 180) and location(-151.5, 27, -16.5, "Shootout", 0)
 	set {_random} to a random integer between 1 and size of {_locations::*}
 	teleport {_p} to {_locations::%{_random}%}
 	giveKit({_p})
@@ -68,7 +68,7 @@ on death:
 	set {_subtitle::*} to "&6You've met your match, partner!" and "&6You're not quick enough on the draw, partner!" and "&6Better luck next time, cowboy!" and "&6Looks like it's high noon for you!" and "&6Seems like you've met your last round-up!" and "&6You've bitten the dust, partner!" and "&6Looks like you're all hat and no cattle!"
 	send title "&c&lYou Died!" with subtitle "%{_subtitle::%{_randomDeathMessage}%}%" to victim for 1.5 seconds with fadein 0 ticks and fadeout 5 ticks
 	wait 2 ticks
-	teleport victim to location(-128.5, 32, -18.5, "Game", 45)
+	teleport victim to location(-128.5, 32, -18.5, "Shootout", 45)
 	set {temp::%victim%::FFASpawn} to true
 	delete {temp::%victim%::stick} # Fix stick bug
 	loopJump(victim)

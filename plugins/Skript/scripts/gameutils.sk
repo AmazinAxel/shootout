@@ -7,14 +7,14 @@ function getIDOfSign(block: block) :: integer:
     set {_id} to 0
 
     # Shootout 1v1 Duels
-    set {_startLoc} to location(1, 61, 7, "Game")
+    set {_startLoc} to location(1, 61, 7, "Shootout")
     loop 3 times:
         return {_id} if block at {_startLoc} is {_block}
         remove 1 from x-coordinate of {_startLoc}
         add 1 to {_id}
     
     # Shootout 2v2 Duels
-    set {_startLoc} to location(-1, 61, -7, "Game")
+    set {_startLoc} to location(-1, 61, -7, "Shootout")
     loop 3 times:
         return {_id} if block at {_startLoc} is {_block}
         add 1 to x-coordinate of {_startLoc}
@@ -48,21 +48,21 @@ function getSignByID(id: integer) :: location:
 function arenaSpawnpoints(id: integer) :: locations:
     if {_id} <= 2: # 0, 1, 2 are all 1v1 duels
         # Returns only 2 spawn locations
-        add location(188.5, 88, (0.5 + (100 * {_id})), "Game", -90) to {_locs::*}
-        add location(213.5, 88, (0.5 + (100 * {_id})), "Game", 90) to {_locs::*}
+        add location(188.5, 88, (0.5 + (100 * {_id})), "Shootout", -90) to {_locs::*}
+        add location(213.5, 88, (0.5 + (100 * {_id})), "Shootout", 90) to {_locs::*}
     else if {_id} <= 5: # 3, 4, 5 are all 2v2 duels
         set {_calc} to {_id} - 3 # The number 3 are the total number of 1v1 maps
-        add location(380.5, 95, (0.5 + (100 * {_calc})), "Game", -90) to {_locs::*} # Team 1
-        add location(420.5, 95, (0.5 + (100 * {_calc})), "Game", 90) to {_locs::*} # Team 2
-        add location(380.5, 85, (0.5 + (100 * {_calc})), "Game", -90) to {_locs::*} # Team 1
-        add location(420.5, 85, (0.5 + (100 * {_calc})), "Game", 90) to {_locs::*} # Team 2
+        add location(380.5, 95, (0.5 + (100 * {_calc})), "Shootout", -90) to {_locs::*} # Team 1
+        add location(420.5, 95, (0.5 + (100 * {_calc})), "Shootout", 90) to {_locs::*} # Team 2
+        add location(380.5, 85, (0.5 + (100 * {_calc})), "Shootout", -90) to {_locs::*} # Team 1
+        add location(420.5, 85, (0.5 + (100 * {_calc})), "Shootout", 90) to {_locs::*} # Team 2
         
     return {_locs::*}
 
 # Returns a single spawnpoint at the center of the map for spectators
 function arenaSpawn(id: integer) :: location:   
     if {_id} <= 2: # 0, 1, 2 are all 1v1 duels
-        return location(200, 75, (0.5 + (100 * {_id})), "Game", 90, 90) # 1v1 Shootout
+        return location(200, 75, (0.5 + (100 * {_id})), "Shootout", 90, 90) # 1v1 Shootout
     else if {_id} <= 5: # 3, 4, 5 are all 2v2 duels
         set {_calc} to {_id} - 3 # The number 3 are the total number of 1v1 maps
         return location(400, 100, (0.5 + (100 * {_calc}))) # 2v2 Shootout
@@ -94,29 +94,20 @@ function updateSign(sign: block, id: integer):
 
 function createBounds(): # This is ran on launch and should make bounds for each map
     set {_id} and {_delBound} and {_calc} to 0
-
-    # delete all the old bounds
-    #loop 6 times: # How many maps there are
-    #    broadcast bound with id "Map%{_delBound}%"
-    #    delete bound with id "Map%{_delBound}%"
-    #    add 1 to {_delBound}
     
     loop 3 times: # Loops all the Shootout1v1 maps:
-        create temporary bound with id "Map%{_id}%" within location(174, 100, -17 + (100 * {_id}), "Game") and location(224, 60, 15 + (100 * {_id}), "Game")
+        create temporary bound with id "Map%{_id}%" within location(174, 100, -17 + (100 * {_id}), "Shootout") and location(224, 60, 15 + (100 * {_id}), "Shootout")
         add 1 to {_id}
     
     loop 3 times: # Loops all the Shootout2v2 maps:
-        create temporary  bound with id "Map%{_id}%" within location(369, 57, -19 + (100 * {_calc}), "Game") and location(432, 118, 15 + (100 * {_calc}), "Game")
+        create temporary bound with id "Map%{_id}%" within location(369, 57, -19 + (100 * {_calc}), "Shootout") and location(432, 118, 15 + (100 * {_calc}), "Shootout")
         add 1 to {_id} and {_calc}
-
-    # Temporary bounds just means that bounds are auto-deleted on server restart and not saved to file
 
 function resetSigns(): # Resets all sign text (run on server start)
     set {_id} to 0
     loop 6 times: # Total amount of maps
         updateSign(block at getSignByID({_id}), {_id})
         add 1 to {_id}
-
 
 on bound exit: 
     id of event-bound contains "Map"

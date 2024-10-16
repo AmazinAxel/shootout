@@ -21,8 +21,8 @@ function refreshPlayerScoreboard(p: player):
 				add loop-player to {_teammates::*} if {game::%loop-player%::team} is {game::%{_p}%::team}
 				add loop-player to {_opponents::*} if {game::%loop-player%::team} is not {game::%{_p}%::team}
 			
-			set line 13 of {_p}'s scoreboard to "&f  ᴏᴘᴘᴏɴᴇɴᴛ(ѕ): &6%{_opponents::*}%" if {_opponents::*} is set
-			set line 12 of {_p}'s scoreboard to "&f  ᴛᴇᴀᴍᴍᴀᴛᴇ(ѕ): &6%{_teammates::*}%" if {_teammates::*} is set
+			set line 13 of {_p}'s scoreboard to "&f  ᴏᴘᴘᴏɴᴇɴᴛ(s): &6%{_opponents::*}%" if {_opponents::*} is set
+			set line 12 of {_p}'s scoreboard to "&f  ᴛᴇᴀᴍᴍᴀᴛᴇ(s): &6%{_teammates::*}%" if {_teammates::*} is set
 	else if {game::%{_p}%} is "FFA":
 		set line 14 of {_p}'s scoreboard to "&6&l Shootout Duel Arena"
 		set line 13 of {_p}'s scoreboard to "&f  ꜰɪɢʜᴛ ᴏᴛʜᴇʀ ᴘʟᴀʏᴇʀѕ ɪɴ ᴀ"
